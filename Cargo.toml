@@ -1,0 +1,16 @@
+[package]
+name = "rusted_feelings"
+version = "0.1.0"
+edition = "2021"
+author = "foom"
+description = "Keeping a mood journal may be interesting for some and necessary for others."
+
+[dependencies]
+anyhow = "1.0.93"
+clap = { version = "4.5.21", features = ["derive"] }
+rusqlite = "0.32.1"
+rust_decimal = "1.36.0"
+
+[[bin]]
+name = "rf"
+path = "src/main.rs"
