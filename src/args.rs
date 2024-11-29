@@ -4,11 +4,10 @@ use rust_decimal::Decimal;
 #[derive(Parser, Debug)]
 #[command(
     version = "0.1",
-    about,
+    about = "Mood tracker",
     long_about = "Keep track of your moods with this cli app. Give it a score and maybe tag it with feelings"
 )]
 pub struct AppArgs {
-    #[arg(short, long)]
     score: Decimal,
     #[arg(short, long)]
     tags: Vec<String>,
