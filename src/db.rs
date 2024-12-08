@@ -41,6 +41,15 @@ mod test {
         let table_query = r#"SELECT EXISTS ( 
             SELETCT 1 FROM sqlite_master where type='table' and name=?)";
         conn.query_row(sql, params, f)"#;
+
+        let score_exists: bool = conn
+            .query_row(table_query, ["score"], |row| row.get(0))
+            .unwrap();
+        assert!(score_exists);
+        let tag_exists: bool = conn
+            .query_row(table_query, ["tag"], |row| row.get(0))
+            .unwrap();
+        assert!(tag_exists);
     }
 
     fn get_test_conn() {}
