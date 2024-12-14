@@ -27,6 +27,10 @@ pub fn init_db_tables(conn: &Connection) -> Result<()> {
     Ok(())
 }
 
+pub fn insert_mood_data_point() -> Result<()> {
+    Ok(())
+}
+
 #[cfg(test)]
 mod test {
     use rusqlite::Connection;
