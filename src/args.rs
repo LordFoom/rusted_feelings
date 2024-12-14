@@ -9,6 +9,7 @@ use rust_decimal::Decimal;
 )]
 pub struct AppArgs {
     score: Decimal,
+    name: String,
     #[arg(short, long)]
     tags: Vec<String>,
 }
