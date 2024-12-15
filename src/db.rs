@@ -62,7 +62,7 @@ mod test {
         let tag_exists: bool = conn
             .query_row(table_query, ["tag"], |row| row.get(0))
             .unwrap();
-        assert!(mood_exists);
+        assert!(tag_exists);
     }
 
     fn get_test_conn() {}
