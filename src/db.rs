@@ -19,9 +19,14 @@ pub fn init_db(path: &str) -> Result<AppDb> {
 }
 
 pub fn init_db_tables(conn: &Connection) -> Result<()> {
-    let score_tbl_sql = "CREATE TABLE IF NOT EXISTS score (primary key id, score REAL)";
+    let score_tbl_sql =
+        "CREATE TABLE IF NOT EXISTS score (primary key id, mood_id integer, score REAL)";
     conn.execute(score_tbl_sql, [])?;
-    let tag_tbl_sql = "CREATE TABLE IF NOT EXISTS tag (primary key id, name TEXT)";
+    let mood_table_sql = "CREATE TABLE IF NOT EXISTS mood (primary key id, name TEXT)";
+    conn.execute(mood_table_sql, [])?;
+
+    let tag_tbl_sql =
+        "CREATE TABLE IF NOT EXISTS tag (primary key id, score_id integer, name TEXT)";
     conn.execute(tag_tbl_sql, [])?;
 
     Ok(())
@@ -43,17 +48,21 @@ mod test {
         init_db_tables(&conn).unwrap();
         //somehow check that there iss a db
         let table_query = r#"SELECT EXISTS ( 
-            SELETCT 1 FROM sqlite_master where type='table' and name=?)";
+            SELECT 1 FROM sqlite_master where type='table' and name=?)";
         conn.query_row(sql, params, f)"#;
 
         let score_exists: bool = conn
             .query_row(table_query, ["score"], |row| row.get(0))
             .unwrap();
         assert!(score_exists);
+        let mood_exists: bool = conn
+            .query_row(table_query, ["mood"], |row| row.get(0))
+            .unwrap();
+        assert!(mood_exists);
         let tag_exists: bool = conn
             .query_row(table_query, ["tag"], |row| row.get(0))
             .unwrap();
-        assert!(tag_exists);
+        assert!(mood_exists);
     }
 
     fn get_test_conn() {}

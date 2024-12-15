@@ -24,8 +24,8 @@ fn main() -> Result<()> {
     init_logging()?;
     let args = AppArgs::parse();
     let path = get_db_path(&args)?;
-
     let db = init_db(&path)?;
+    let score = args.score
     println!("Hello, world!");
     Ok(())
 }

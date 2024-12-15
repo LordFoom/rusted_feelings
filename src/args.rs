@@ -8,8 +8,8 @@ use rust_decimal::Decimal;
     long_about = "Keep track of your moods with this cli app. Give it a score and maybe tag it with feelings"
 )]
 pub struct AppArgs {
-    score: Decimal,
-    name: String,
+    pub score: Decimal,
+    pub name: String,
     #[arg(short, long)]
-    tags: Vec<String>,
+    pub tags: Vec<String>,
 }
