@@ -32,6 +32,9 @@ pub fn init_db_tables(conn: &Connection) -> Result<()> {
     Ok(())
 }
 
+///Create the argument with "name" in thee sqlite db
+pub fn create_mood_if_not_exists(mood_name: &str, db: &AppDb) -> Result<()> {}
+
 pub fn insert_mood_data_point() -> Result<()> {
     Ok(())
 }
