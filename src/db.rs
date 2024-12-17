@@ -20,20 +20,24 @@ pub fn init_db(path: &str) -> Result<AppDb> {
 
 pub fn init_db_tables(conn: &Connection) -> Result<()> {
     let score_tbl_sql =
-        "CREATE TABLE IF NOT EXISTS score (primary key id, mood_id integer, score REAL)";
+        "CREATE TABLE IF NOT EXISTS score (id integer primary key asc, mood_id integer, score REAL)";
     conn.execute(score_tbl_sql, [])?;
-    let mood_table_sql = "CREATE TABLE IF NOT EXISTS mood (primary key id, name TEXT)";
+    let mood_table_sql =
+        "CREATE TABLE IF NOT EXISTS mood (id integer primary key asc, name TEXT NOT NULL UNIQUE)";
     conn.execute(mood_table_sql, [])?;
 
     let tag_tbl_sql =
-        "CREATE TABLE IF NOT EXISTS tag (primary key id, score_id integer, name TEXT)";
+        "CREATE TABLE IF NOT EXISTS tag (id integer primary key asc, score_id integer, name TEXT)";
     conn.execute(tag_tbl_sql, [])?;
 
     Ok(())
 }
 
 ///Create the argument with "name" in thee sqlite db
-pub fn create_mood_if_not_exists(mood_name: &str, db: &AppDb) -> Result<()> {}
+pub fn create_mood_if_not_exists(mood_name: &str, db: &AppDb) -> Result<()> {
+    let insert_mood_sql = "INSERT OR IGNORE INTO mood (name) VALUES (?)";
+    Ok(())
+}
 
 pub fn insert_mood_data_point() -> Result<()> {
     Ok(())
