@@ -36,6 +36,7 @@ pub fn init_db_tables(conn: &Connection) -> Result<()> {
 ///Create the argument with "name" in thee sqlite db
 pub fn create_mood_if_not_exists(mood_name: &str, db: &AppDb) -> Result<()> {
     let insert_mood_sql = "INSERT OR IGNORE INTO mood (name) VALUES (?)";
+    db.conn.execute(&insert_mood_sql, [mood_name])?;
     Ok(())
 }
 
