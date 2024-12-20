@@ -14,7 +14,7 @@ fn init_logging() -> Result<()> {
 /// a sqlite file. Takes the parsed
 /// args as an arg so it can check if a config file
 /// was passed in as an argument on the cli.
-fn get_db_path(args: &AppArgs) -> Result<String> {
+fn get_db_path(args: &AppArgs) -> Result<&str> {
     Ok(".rusted_feelings.db")
 }
 //TODO Git repo
@@ -24,8 +24,7 @@ fn main() -> Result<()> {
     init_logging()?;
     let args = AppArgs::parse();
     let path = get_db_path(&args)?;
-    let db = init_db(&path)?;
+    let db = init_db(path)?;
     let score = args.score;
-    let println!("Hello, world!");
     Ok(())
 }

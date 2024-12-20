@@ -1,7 +1,7 @@
 use anyhow::{Ok, Result};
 use rusqlite::Connection;
 
-struct AppDb {
+pub struct AppDb {
     pub path: String,
     pub conn: Connection,
 }
@@ -9,6 +9,13 @@ struct AppDb {
 impl AppDb {
     pub fn new(path: String, conn: Connection) -> Self {
         Self { path, conn }
+    }
+
+    pub fn from_conn(conn: Connection) -> Self {
+        Self {
+            path: "IN-MEMORY".to_string(),
+            conn: conn,
+        }
     }
 }
 pub fn init_db(path: &str) -> Result<AppDb> {
@@ -34,10 +41,10 @@ pub fn init_db_tables(conn: &Connection) -> Result<()> {
 }
 
 ///Create the argument with "name" in thee sqlite db
-pub fn create_mood_if_not_exists(mood_name: &str, db: &AppDb) -> Result<usize> {
+pub fn create_mood_if_not_exists(mood_name: &str, db: &AppDb) -> Result<bool> {
     let insert_mood_sql = "INSERT OR IGNORE INTO mood (name) VALUES (?)";
     let res = db.conn.execute(&insert_mood_sql, [mood_name])?;
-    Ok(res)
+    Ok(res == 1)
 }
 
 pub fn insert_mood_data_point() -> Result<()> {
@@ -48,7 +55,9 @@ pub fn insert_mood_data_point() -> Result<()> {
 mod test {
     use rusqlite::Connection;
 
-    use super::init_db_tables;
+    use crate::db::AppDb;
+
+    use super::{create_mood_if_not_exists, init_db_tables};
 
     #[test]
     fn test_init_db() {
@@ -76,5 +85,10 @@ mod test {
     #[test]
     fn test_create_mood_if_not_exists() {
         let conn = Connection::open_in_memory().unwrap();
+        let db = &AppDb::from_conn(conn);
+        let mood_created = create_mood_if_not_exists("peace", &db).unwrap();
+        assert!(mood_created);
+        let mood_created_twice = create_mood_if_not_exists("peace", &db).unwrap();
+        assert!(!mood_created_twice);
     }
 }
