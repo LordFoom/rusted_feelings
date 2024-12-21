@@ -65,8 +65,7 @@ mod test {
         init_db_tables(&conn).unwrap();
         //somehow check that there iss a db
         let table_query = r#"SELECT EXISTS ( 
-            SELECT 1 FROM sqlite_master where type='table' and name=?)";
-        conn.query_row(sql, params, f)"#;
+            SELECT 1 FROM sqlite_master where type='table' and name=?)"#;
 
         let score_exists: bool = conn
             .query_row(table_query, ["score"], |row| row.get(0))
@@ -85,6 +84,7 @@ mod test {
     #[test]
     fn test_create_mood_if_not_exists() {
         let conn = Connection::open_in_memory().unwrap();
+        init_db_tables(&conn).unwrap();
         let db = &AppDb::from_conn(conn);
         let mood_created = create_mood_if_not_exists("peace", &db).unwrap();
         assert!(mood_created);
