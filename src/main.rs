@@ -25,6 +25,14 @@ fn main() -> Result<()> {
     let args = AppArgs::parse();
     let path = get_db_path(&args)?;
     let db = init_db(path)?;
-    let score = args.score;
+    match args.command {
+        args::Command::AddMood { mood, description } => db::create_mood_if_not_exists(mood, &db),
+        args::Command::ScoreMood {
+            score,
+            mood,
+            days_back,
+        } => todo!(),
+        args::Command::ListMoods => todo!(),
+    }
     Ok(())
 }
