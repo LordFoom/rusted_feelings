@@ -26,13 +26,15 @@ fn main() -> Result<()> {
     let path = get_db_path(&args)?;
     let db = init_db(path)?;
     match args.command {
-        args::Command::AddMood { mood, description } => db::create_mood_if_not_exists(mood, &db),
-        args::Command::ScoreMood {
+        args::Commands::AddMood { mood, description } => {
+            db::create_mood_if_not_exists(&mood, &description, &db);
+        }
+        args::Commands::ScoreMood {
             score,
             mood,
             days_back,
         } => todo!(),
-        args::Command::ListMoods => todo!(),
+        args::Commands::ListMoods => todo!(),
     }
     Ok(())
 }

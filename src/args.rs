@@ -8,11 +8,12 @@ use rust_decimal::Decimal;
     long_about = "Keep track of your moods with this cli app. Give it a score and maybe tag it with feelings"
 )]
 pub struct AppArgs {
-    pub command: Command,
+    #[command(subcommand)]
+    pub command: Commands,
 }
 
 #[derive(Subcommand, Debug, Clone)]
-pub enum Command {
+pub enum Commands {
     AddMood {
         mood: String,
         description: Option<String>,

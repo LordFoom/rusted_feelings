@@ -40,7 +40,8 @@ pub fn init_db_tables(conn: &Connection) -> Result<()> {
     Ok(())
 }
 
-///Create the argument with "name" in thee sqlite db
+///Create the argument with "name" in thee sqlite db.
+///Returns true if a mood was created
 pub fn create_mood_if_not_exists(
     mood_name: &str,
     maybe_mood_description: &Option<String>,
@@ -93,9 +94,9 @@ mod test {
         let conn = Connection::open_in_memory().unwrap();
         init_db_tables(&conn).unwrap();
         let db = &AppDb::from_conn(conn);
-        let mood_created = create_mood_if_not_exists("peace", &db).unwrap();
+        let mood_created = create_mood_if_not_exists("peace", &None, &db).unwrap();
         assert!(mood_created);
-        let mood_created_twice = create_mood_if_not_exists("peace", &db).unwrap();
+        let mood_created_twice = create_mood_if_not_exists("peace", &None, &db).unwrap();
         assert!(!mood_created_twice);
     }
 }
