@@ -1,4 +1,4 @@
-use anyhow::{Ok, Result};
+use color_eyre::Result;
 use rusqlite::Connection;
 
 pub struct AppDb {

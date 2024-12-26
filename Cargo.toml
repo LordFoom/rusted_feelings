@@ -8,6 +8,8 @@ description = "Keeping a mood journal may be interesting for some and necessary 
 [dependencies]
 anyhow = "1.0.93"
 clap = { version = "4.5.21", features = ["derive"] }
+color-eyre = "0.6.3"
+log4rs = "1.3.0"
 rusqlite = "0.32.1"
 rust_decimal = "1.36.0"
 
