@@ -60,13 +60,13 @@ fn get_db_path(args: &AppArgs) -> Result<&str> {
 //Accept arguments
 //Create argument model;
 fn main() -> Result<()> {
-    init_logging()?;
     let args = AppArgs::parse();
+    init_logging(args.verbose)?;
     let path = get_db_path(&args)?;
     let db = init_db(path)?;
     match args.command {
         args::Commands::AddMood { mood, description } => {
-            db::create_mood_if_not_exists(&mood, &description, &db);
+            db::create_mood_if_not_exists(&mood, &description, &db)?;
             //info!()
         }
         args::Commands::ScoreMood {

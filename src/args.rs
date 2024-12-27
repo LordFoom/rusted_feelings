@@ -10,6 +10,8 @@ use rust_decimal::Decimal;
 pub struct AppArgs {
     #[command(subcommand)]
     pub command: Commands,
+    #[arg(short, long)]
+    pub verbose: bool,
 }
 
 #[derive(Subcommand, Debug, Clone)]
