@@ -1,5 +1,6 @@
 use clap::Parser;
 
+use log::info;
 use log::LevelFilter;
 use log4rs::{
     append::{console::ConsoleAppender, file::FileAppender},
@@ -66,8 +67,11 @@ fn main() -> Result<()> {
     let db = init_db(path)?;
     match args.command {
         args::Commands::AddMood { mood, description } => {
-            db::create_mood_if_not_exists(&mood, &description, &db)?;
-            //info!()
+            if db::create_mood_if_not_exists(&mood, &description, &db)? {
+                info!("Added mood: '{}'", &mood);
+            } else {
+                info!("Mood already exists: '{}'", &mood);
+            };
         }
         args::Commands::ScoreMood {
             score,
