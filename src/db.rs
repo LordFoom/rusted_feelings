@@ -21,7 +21,7 @@ impl AppDb {
 pub fn init_db(path: &str) -> Result<AppDb> {
     let conn = Connection::open(path)?;
     let db = AppDb::new(path.to_string(), conn);
-    init_db_tables(&db.conn);
+    init_db_tables(&db.conn)?;
     Ok(db)
 }
 
@@ -55,8 +55,17 @@ pub fn create_mood_if_not_exists(
     Ok(res == 1)
 }
 
-pub fn insert_mood_data_point() -> Result<()> {
-    Ok(())
+pub fn add_mood_score(
+    score: rust_decimal::Decimal,
+    mood: &str,
+    days_back: Option<usize>,
+    db: &AppDb,
+) -> Result<String> {
+    //get the mood to ensure it exists
+    let check_mood_sql = "SELECT COUNT(*) FROM mood WHERE name = ?";
+
+    let ok = String::from("OK");
+    Ok(ok)
 }
 
 #[cfg(test)]

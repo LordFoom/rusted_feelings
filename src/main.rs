@@ -1,7 +1,8 @@
 use clap::Parser;
 
-use log::info;
+use color_eyre::owo_colors::OwoColorize;
 use log::LevelFilter;
+use log::{error, info};
 use log4rs::{
     append::{console::ConsoleAppender, file::FileAppender},
     config::{Appender, Root},
@@ -41,7 +42,7 @@ fn init_logging(verbose: bool) -> Result<()> {
             Root::builder()
                 .appender("stdout")
                 .appender("file")
-                .build(LevelFilter::Info),
+                .build(level),
         )
         .expect("Failed to build log4rs configuration");
 
@@ -68,16 +69,23 @@ fn main() -> Result<()> {
     match args.command {
         args::Commands::AddMood { mood, description } => {
             if db::create_mood_if_not_exists(&mood, &description, &db)? {
-                info!("Added mood: '{}'", &mood);
+                info!("Added mood: '{}'", &mood.bold().green());
             } else {
-                info!("Mood already exists: '{}'", &mood);
+                info!("Mood already exists: '{}'", &mood.bold().red());
             };
         }
         args::Commands::ScoreMood {
             score,
             mood,
             days_back,
-        } => todo!(),
+        } => match db::add_mood_score(score, &mood, days_back, &db) {
+            Ok(_) => info!(
+                "Recorded score of {} for mood '{}'",
+                score.to_string().underline(),
+                mood.bold().green()
+            ),
+            Err(why) => error!("Failed to record mood: {}", why),
+        },
         args::Commands::ListMoods => todo!(),
     }
     Ok(())
