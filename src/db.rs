@@ -1,5 +1,5 @@
-use color_eyre::Result;
-use rusqlite::Connection;
+use color_eyre::{eyre::eyre, Result};
+use rusqlite::{Connection, Statement};
 
 pub struct AppDb {
     pub path: String,
@@ -62,7 +62,23 @@ pub fn add_mood_score(
     db: &AppDb,
 ) -> Result<String> {
     //get the mood to ensure it exists
-    let check_mood_sql = "SELECT COUNT(*) FROM mood WHERE name = ?";
+    let mut stmt = db
+        .conn
+        .prepare("SELECT COUNT(*) FROM mood WHERE name = ?")?;
+    let mut rows = stmt.query([])?;
+    let count: usize = if let Some(row) = rows.next()? {
+        row.get(0)?
+    } else {
+        return Err(eyre!("No row returned from mood COUNT query??"));
+    };
+
+    if count == 0 {
+        //TODO think about whether autocreating this is the way to go? I worry about typos...
+        //TODO add a flag that allows autocreation of the mood if it is passed in
+        return Err(eyre!(
+            "The mood {mood} was not found, you will need to add it first"
+        ));
+    }
 
     let ok = String::from("OK");
     Ok(ok)
