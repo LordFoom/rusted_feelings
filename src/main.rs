@@ -84,7 +84,11 @@ fn main() -> Result<()> {
                 score.to_string().underline(),
                 mood.bold().green()
             ),
-            Err(why) => error!("Failed to record mood: {}", why),
+            Err(why) => error!(
+                "Failed to record mood: '{}', reason: '{}'",
+                mood,
+                why.bold().red()
+            ),
         },
         args::Commands::ListMoods => todo!(),
     }

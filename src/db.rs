@@ -1,5 +1,5 @@
-use color_eyre::{eyre::eyre, Result};
-use rusqlite::{Connection, Statement};
+use color_eyre::{eyre::eyre, owo_colors::OwoColorize, Result};
+use rusqlite::{params, Connection, Statement};
 
 pub struct AppDb {
     pub path: String,
@@ -74,10 +74,18 @@ pub fn add_mood_score(
         ));
     };
 
-    let mut insert_score_sql = ;
-    db.conn.execute("INSERT INTO score(mood_id, score) VALUES(?,?)", [mood_id, score])?;
+    let score_add_count = db.conn.execute(
+        "INSERT INTO score(mood_id, score) VALUES(?,?)",
+        params![mood_id, score.to_string()],
+    )?;
 
-    let ok = String::from("OK");
+    let msg = match score_add_count {
+        0 => return Err(eyre!("Score was not inserted")),
+        1 => "Score was inserted successfully!",
+        num => return Err(eyre!("Somehow inserted {} rows", num.bold().magenta())),
+    };
+
+    let ok = String::from(msg);
     Ok(ok)
 }
 
