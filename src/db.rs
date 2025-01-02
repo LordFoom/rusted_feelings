@@ -95,7 +95,7 @@ mod test {
 
     use crate::db::AppDb;
 
-    use super::{create_mood_if_not_exists, init_db_tables};
+    use super::{add_mood_score, create_mood_if_not_exists, init_db_tables};
 
     #[test]
     fn test_init_db() {
@@ -128,5 +128,16 @@ mod test {
         assert!(mood_created);
         let mood_created_twice = create_mood_if_not_exists("peace", &None, &db).unwrap();
         assert!(!mood_created_twice);
+    }
+
+    #[test]
+    fn test_add_mood_score() {
+        let conn = Connection::open_in_memory().unwrap();
+        init_db_tables(&conn).unwrap();
+        let db = &AppDb::from_conn(conn);
+        let first_try_mood_score = 7.9;
+        let first_try_bad_mood = "badmood";
+        let add_result = add_mood_score(first_try_mood_score, first_try_bad_mood, None, &db);
+        assert!(add_result.is_err())
     }
 }
