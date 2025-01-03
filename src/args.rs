@@ -30,4 +30,6 @@ pub enum Commands {
     },
     ///List all moods in the datastore
     ListMoods,
+    ///TODO show the scores
+    ShowScores,
 }

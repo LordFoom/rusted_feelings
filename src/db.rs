@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use color_eyre::{eyre::eyre, owo_colors::OwoColorize, Result};
 use rusqlite::{params, Connection, Statement};
 
@@ -87,6 +89,11 @@ pub fn add_mood_score(
 
     let ok = String::from(msg);
     Ok(ok)
+}
+
+///Returns a map of mood_id => mood_name
+pub fn list_moods(db: AppDb) -> Result<HashMap<u32, String>> {
+    let sql = "select id, name from mood";
 }
 
 #[cfg(test)]
