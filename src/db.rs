@@ -91,9 +91,9 @@ pub fn add_mood_score(
 
 #[cfg(test)]
 mod test {
-    use rusqlite::Connection;
-
     use crate::db::AppDb;
+    use rusqlite::Connection;
+    use rust_decimal_macros::dec;
 
     use super::{add_mood_score, create_mood_if_not_exists, init_db_tables};
 
@@ -131,11 +131,11 @@ mod test {
     }
 
     #[test]
-    fn test_add_mood_score() {
+    fn test_add_mood_score_non_existent() {
         let conn = Connection::open_in_memory().unwrap();
         init_db_tables(&conn).unwrap();
         let db = &AppDb::from_conn(conn);
-        let first_try_mood_score = 7.9;
+        let first_try_mood_score = dec!(7.9);
         let first_try_bad_mood = "badmood";
         let add_result = add_mood_score(first_try_mood_score, first_try_bad_mood, None, &db);
         assert!(add_result.is_err())
