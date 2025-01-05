@@ -63,7 +63,7 @@ pub fn add_mood_score(
 ) -> Result<String> {
     //get the mood to ensure it exists
     let mut stmt = db.conn.prepare("SELECT id FROM mood WHERE name = ?")?;
-    let mut rows = stmt.query([])?;
+    let mut rows = stmt.query([mood])?;
     let mood_id: usize = if let Some(row) = rows.next()? {
         row.get(0)?
     } else {
@@ -142,15 +142,16 @@ mod test {
     }
 
     #[test]
-    fn test add_mood_score_exists() {
+    fn test_add_mood_score_exists() {
         let conn = Connection::open_in_memory().unwrap();
         init_db_tables(&conn).unwrap();
         let db = &AppDb::from_conn(conn);
         let _ = create_mood_if_not_exists("peace", &None, &db).unwrap();
-        
+
         let first_try_mood_score = dec!(7.9);
         let first_try_mood = "peace";
         let add_result = add_mood_score(first_try_mood_score, first_try_mood, None, &db);
+        println!("This was the add result: {:?}", add_result);
         assert!(!add_result.is_err())
     }
 }
