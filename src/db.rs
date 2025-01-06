@@ -92,8 +92,22 @@ pub fn add_mood_score(
 }
 
 ///Returns a map of mood_id => mood_name
-pub fn list_moods(db: AppDb) -> Result<HashMap<u32, String>> {
+pub fn list_moods(db: &AppDb) -> Result<HashMap<u32, String>> {
+    let mut return_map = HashMap::new();
     let sql = "select id, name from mood";
+    let mut stmt = db.conn.prepare(sql)?;
+    let rows = stmt.query_map([], |row| {
+        let id: u32 = row.get(0)?;
+        let name: String = row.get(1)?;
+        Ok((id, name))
+    })?;
+
+    for row_result in rows {
+        let (id, name) = row_result?;
+        return_map.insert(id, name);
+    }
+
+    Ok(return_map)
 }
 
 #[cfg(test)]

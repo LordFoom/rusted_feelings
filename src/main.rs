@@ -91,6 +91,7 @@ fn main() -> Result<()> {
             ),
         },
         args::Commands::ListMoods => todo!(),
+        args::Commands::ShowScores => todo!(),
     }
     Ok(())
 }
