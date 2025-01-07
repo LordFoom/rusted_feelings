@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use color_eyre::{eyre::eyre, owo_colors::OwoColorize, Result};
 use rusqlite::{params, Connection, Statement};
+use rust_decimal::Decimal;
 
 pub struct AppDb {
     pub path: String,
@@ -57,6 +58,9 @@ pub fn create_mood_if_not_exists(
     Ok(res == 1)
 }
 
+pub fn add_score(score: Decimal, days_back: Option<usize>, db: &AppDb) -> Result<()> {
+    Ok(())
+}
 pub fn add_mood_score(
     score: rust_decimal::Decimal,
     mood: &str,
