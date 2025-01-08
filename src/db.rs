@@ -9,6 +9,11 @@ pub struct AppDb {
     pub conn: Connection,
 }
 
+pub struct Score {
+    pub score: String,
+    pub date: chrono::NaiveDateTime,
+}
+
 impl AppDb {
     pub fn new(path: String, conn: Connection) -> Self {
         Self { path, conn }
@@ -32,9 +37,6 @@ pub fn init_db_tables(conn: &Connection) -> Result<()> {
     let score_tbl_sql =
         "CREATE TABLE IF NOT EXISTS score (id integer primary key asc, mood_id integer, score REAL)";
     conn.execute(score_tbl_sql, [])?;
-    let mood_table_sql =
-        "CREATE TABLE IF NOT EXISTS mood (id integer primary key asc, name TEXT NOT NULL UNIQUE, description TEXT)";
-    conn.execute(mood_table_sql, [])?;
 
     let tag_tbl_sql =
         "CREATE TABLE IF NOT EXISTS tag (id integer primary key asc, score_id integer, name TEXT)";
@@ -58,41 +60,20 @@ pub fn create_mood_if_not_exists(
     Ok(res == 1)
 }
 
-pub fn add_score(score: Decimal, days_back: Option<usize>, db: &AppDb) -> Result<()> {
+pub fn add_score(score: Decimal, db: &AppDb) -> Result<()> {
+    db.conn.execute(
+        "INSERT INTO score(score) VALUES(?)",
+        params![score.to_string()],
+    )?;
     Ok(())
 }
-pub fn add_mood_score(
-    score: rust_decimal::Decimal,
-    mood: &str,
-    days_back: Option<usize>,
+
+pub fn list_scores(
     db: &AppDb,
-) -> Result<String> {
-    //get the mood to ensure it exists
-    let mut stmt = db.conn.prepare("SELECT id FROM mood WHERE name = ?")?;
-    let mut rows = stmt.query([mood])?;
-    let mood_id: usize = if let Some(row) = rows.next()? {
-        row.get(0)?
-    } else {
-        //TODO think about whether autocreating this is the way to go? I worry about typos...
-        //TODO add a flag that allows autocreation of the mood if it is passed in
-        return Err(eyre!(
-            "The mood {mood} was not found, you will need to add it first"
-        ));
-    };
-
-    let score_add_count = db.conn.execute(
-        "INSERT INTO score(mood_id, score) VALUES(?,?)",
-        params![mood_id, score.to_string()],
-    )?;
-
-    let msg = match score_add_count {
-        0 => return Err(eyre!("Score was not inserted")),
-        1 => "Score was inserted successfully!",
-        num => return Err(eyre!("Somehow inserted {} rows", num.bold().magenta())),
-    };
-
-    let ok = String::from(msg);
-    Ok(ok)
+    start_date: Option<String>,
+    end_date: Option<String>,
+) -> Result<Vec<Score>> {
+    todo!("Implement this");
 }
 
 ///Returns a map of mood_id => mood_name
@@ -120,7 +101,7 @@ mod test {
     use rusqlite::Connection;
     use rust_decimal_macros::dec;
 
-    use super::{add_mood_score, create_mood_if_not_exists, init_db_tables};
+    use super::{create_mood_if_not_exists, init_db_tables};
 
     #[test]
     fn test_init_db() {
@@ -134,49 +115,9 @@ mod test {
             .query_row(table_query, ["score"], |row| row.get(0))
             .unwrap();
         assert!(score_exists);
-        let mood_exists: bool = conn
-            .query_row(table_query, ["mood"], |row| row.get(0))
-            .unwrap();
-        assert!(mood_exists);
         let tag_exists: bool = conn
             .query_row(table_query, ["tag"], |row| row.get(0))
             .unwrap();
         assert!(tag_exists);
-    }
-
-    #[test]
-    fn test_create_mood_if_not_exists() {
-        let conn = Connection::open_in_memory().unwrap();
-        init_db_tables(&conn).unwrap();
-        let db = &AppDb::from_conn(conn);
-        let mood_created = create_mood_if_not_exists("peace", &None, &db).unwrap();
-        assert!(mood_created);
-        let mood_created_twice = create_mood_if_not_exists("peace", &None, &db).unwrap();
-        assert!(!mood_created_twice);
-    }
-
-    #[test]
-    fn test_add_mood_score_non_existent() {
-        let conn = Connection::open_in_memory().unwrap();
-        init_db_tables(&conn).unwrap();
-        let db = &AppDb::from_conn(conn);
-        let first_try_mood_score = dec!(7.9);
-        let first_try_bad_mood = "badmood";
-        let add_result = add_mood_score(first_try_mood_score, first_try_bad_mood, None, &db);
-        assert!(add_result.is_err())
-    }
-
-    #[test]
-    fn test_add_mood_score_exists() {
-        let conn = Connection::open_in_memory().unwrap();
-        init_db_tables(&conn).unwrap();
-        let db = &AppDb::from_conn(conn);
-        let _ = create_mood_if_not_exists("peace", &None, &db).unwrap();
-
-        let first_try_mood_score = dec!(7.9);
-        let first_try_mood = "peace";
-        let add_result = add_mood_score(first_try_mood_score, first_try_mood, None, &db);
-        println!("This was the add result: {:?}", add_result);
-        assert!(!add_result.is_err())
     }
 }
