@@ -7,6 +7,7 @@ description = "Keeping a mood journal may be interesting for some and necessary 
 
 [dependencies]
 anyhow = "1.0.93"
+chrono = "0.4.39"
 clap = { version = "4.5.21", features = ["derive"] }
 color-eyre = "0.6.3"
 log = "0.4.22"
