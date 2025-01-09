@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use color_eyre::{eyre::eyre, owo_colors::OwoColorize, Result};
-use rusqlite::{params, Connection, Statement};
+use color_eyre::Result;
+use rusqlite::{ffi::sqlite3_last_insert_rowid, params, Connection};
 use rust_decimal::Decimal;
 
 pub struct AppDb {
@@ -12,6 +12,7 @@ pub struct AppDb {
 pub struct Score {
     pub score: String,
     pub date: chrono::NaiveDateTime,
+    pub tags: Vec<String>,
 }
 
 impl AppDb {
@@ -45,26 +46,23 @@ pub fn init_db_tables(conn: &Connection) -> Result<()> {
     Ok(())
 }
 
-///Create the argument with "name" in thee sqlite db.
-///Returns true if a mood was created
-pub fn create_mood_if_not_exists(
-    mood_name: &str,
-    maybe_mood_description: &Option<String>,
-    db: &AppDb,
-) -> Result<bool> {
-    let mood_description = maybe_mood_description.as_deref().unwrap_or("");
-    let insert_mood_sql = "INSERT OR IGNORE INTO mood (name, description) VALUES (?, ?)";
-    let res = db
-        .conn
-        .execute(&insert_mood_sql, [mood_name, mood_description])?;
-    Ok(res == 1)
-}
-
-pub fn add_score(score: Decimal, db: &AppDb) -> Result<()> {
+///Insert a score and return the db id
+pub fn add_score(score: Decimal, db: &AppDb) -> Result<i64> {
     db.conn.execute(
         "INSERT INTO score(score) VALUES(?)",
         params![score.to_string()],
     )?;
+    let score_id = db.conn.last_insert_rowid();
+    Ok(score_id)
+}
+
+pub fn add_tags(tags: Vec<String>, score_id: i64, db: &AppDb) -> Result<()> {
+    for tag in tags {
+        db.conn.execute(
+            "INSERT INTO tag (name, score_id) VALUES (?,?) ",
+            params![tag, score_id],
+        )?;
+    }
     Ok(())
 }
 
@@ -73,7 +71,7 @@ pub fn list_scores(
     start_date: Option<String>,
     end_date: Option<String>,
 ) -> Result<Vec<Score>> {
-    todo!("Implement this");
+    todo!();
 }
 
 ///Returns a map of mood_id => mood_name
