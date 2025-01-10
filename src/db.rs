@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use chrono::NaiveDateTime;
 use color_eyre::Result;
 use rusqlite::{ffi::sqlite3_last_insert_rowid, params, Connection};
 use rust_decimal::Decimal;
@@ -10,9 +11,9 @@ pub struct AppDb {
 }
 
 pub struct Score {
+    pub id: usize,
     pub score: String,
-    pub date: chrono::NaiveDateTime,
-    pub tags: Vec<String>,
+    pub create_date: chrono::NaiveDateTime,
 }
 
 impl AppDb {
@@ -36,7 +37,7 @@ pub fn init_db(path: &str) -> Result<AppDb> {
 
 pub fn init_db_tables(conn: &Connection) -> Result<()> {
     let score_tbl_sql =
-        "CREATE TABLE IF NOT EXISTS score (id integer primary key asc, mood_id integer, score REAL)";
+        "CREATE TABLE IF NOT EXISTS score (id integer primary key asc, mood_id integer, create_date text, score REAL)";
     conn.execute(score_tbl_sql, [])?;
 
     let tag_tbl_sql =
@@ -71,26 +72,32 @@ pub fn list_scores(
     start_date: Option<String>,
     end_date: Option<String>,
 ) -> Result<Vec<Score>> {
-    todo!();
-}
+    let mut sql = "SELECT id, score, create_date FROM score WHERE 1=1 ".to_string();
+    let mut parms = Vec::new();
+    if let Some(dt) = start_date {
+        sql.push_str("AND create_date >= ?");
+        parms.push(dt);
+    };
+    if let Some(dt) = end_date {
+        sql.push_str("AND create_date < ?");
+        parms.push(dt);
+    };
 
-///Returns a map of mood_id => mood_name
-pub fn list_moods(db: &AppDb) -> Result<HashMap<u32, String>> {
-    let mut return_map = HashMap::new();
-    let sql = "select id, name from mood";
-    let mut stmt = db.conn.prepare(sql)?;
-    let rows = stmt.query_map([], |row| {
-        let id: u32 = row.get(0)?;
-        let name: String = row.get(1)?;
-        Ok((id, name))
+    let mut stmt = db.conn.prepare(&sql)?;
+    let score_rows = stmt.query_map(parms, |row| {
+        let score = Score {
+            id: row.get(0)?,
+            score: row.get(1)?,
+            create_date: row.get(2)?,
+        };
+        Ok(score)
     })?;
-
-    for row_result in rows {
-        let (id, name) = row_result?;
-        return_map.insert(id, name);
+    let mut scores = Vec::new();
+    for score_wrap in score_rows {
+        let score = score_wrap.unwrap();
+        scores.push(score);
     }
-
-    Ok(return_map)
+    Ok(scores)
 }
 
 #[cfg(test)]
@@ -99,7 +106,7 @@ mod test {
     use rusqlite::Connection;
     use rust_decimal_macros::dec;
 
-    use super::{create_mood_if_not_exists, init_db_tables};
+    use super::init_db_tables;
 
     #[test]
     fn test_init_db() {
