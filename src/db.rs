@@ -2,6 +2,8 @@ use color_eyre::Result;
 use rusqlite::Connection;
 use rust_decimal::Decimal;
 
+use crate::args::AppArgs;
+
 pub struct AppDb {
     pub path: String,
     pub conn: Connection,
@@ -34,7 +36,7 @@ pub fn init_db(path: &str) -> Result<AppDb> {
 
 pub fn init_db_tables(conn: &Connection) -> Result<()> {
     let score_tbl_sql =
-        "CREATE TABLE IF NOT EXISTS score (id integer primary key asc, mood_id integer, create_date text, score REAL)";
+        "CREATE TABLE IF NOT EXISTS score (id integer primary key asc, mood_id integer, create_date default current_timestamp, score REAL)";
     conn.execute(score_tbl_sql, [])?;
 
     let tag_tbl_sql =
@@ -44,9 +46,9 @@ pub fn init_db_tables(conn: &Connection) -> Result<()> {
     Ok(())
 }
 
-pub fn add_score_and_tags(args: &Args, db: &AppDb) -> Result<()> {
+pub fn add_score_and_tags(args: &AppArgs, db: &AppDb) -> Result<()> {
     let score_id = add_score(args.score, db)?;
-    if let (tag_values) = args.tags {
+    if let tag_values = &args.tags {
         add_tags(tag_values, score_id, db)?;
     };
     Ok(())
@@ -63,7 +65,7 @@ pub fn add_score(score: Decimal, db: &AppDb) -> Result<i64> {
 }
 
 ///Add tags associated with score id
-pub fn add_tags(tags: Vec<String>, score_id: i64, db: &AppDb) -> Result<()> {
+pub fn add_tags(tags: &Vec<String>, score_id: i64, db: &AppDb) -> Result<()> {
     for tag in tags {
         db.conn.execute(
             "INSERT INTO tag (name, score_id) VALUES (?,?) ",
