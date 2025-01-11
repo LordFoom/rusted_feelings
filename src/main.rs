@@ -67,7 +67,7 @@ fn main() -> Result<()> {
     let path = get_db_path(&args)?;
     let db = init_db(path)?;
     let score = args.score;
-    db::add_score(score, &db)?;
+    db::add_score_and_tags(args, &db)?;
     info! {"Added score {} with tags {:?}", args.score.cyan(), args.tags.yellow()};
     Ok(())
 }

@@ -1,8 +1,5 @@
-use std::collections::HashMap;
-
-use chrono::NaiveDateTime;
 use color_eyre::Result;
-use rusqlite::{ffi::sqlite3_last_insert_rowid, params, Connection};
+use rusqlite::Connection;
 use rust_decimal::Decimal;
 
 pub struct AppDb {
@@ -50,7 +47,7 @@ pub fn init_db_tables(conn: &Connection) -> Result<()> {
 pub fn add_score_and_tags(args: &Args, db: &AppDb) -> Result<()> {
     let score_id = add_score(args.score, db)?;
     if let (tag_values) = args.tags {
-        add_tags(tag_values, score_id, db)?
+        add_tags(tag_values, score_id, db)?;
     };
     Ok(())
 }
