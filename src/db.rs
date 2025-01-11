@@ -1,5 +1,5 @@
 use color_eyre::Result;
-use rusqlite::Connection;
+use rusqlite::{params, Connection};
 use rust_decimal::Decimal;
 
 use crate::args::AppArgs;
@@ -92,7 +92,7 @@ pub fn list_scores(
     };
 
     let mut stmt = db.conn.prepare(&sql)?;
-    let score_rows = stmt.query_map(parms, |row| {
+    let score_rows = stmt.query_map([], |row| {
         let score = Score {
             id: row.get(0)?,
             score: row.get(1)?,
