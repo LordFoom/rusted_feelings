@@ -47,6 +47,14 @@ pub fn init_db_tables(conn: &Connection) -> Result<()> {
     Ok(())
 }
 
+pub fn add_score_and_tags(args: &Args, db: &AppDb) -> Result<()> {
+    let score_id = add_score(args.score, db)?;
+    if let (tag_values) = args.tags {
+        add_tags(tag_values, score_id, db)?
+    };
+    Ok(())
+}
+
 ///Insert a score and return the db id
 pub fn add_score(score: Decimal, db: &AppDb) -> Result<i64> {
     db.conn.execute(
@@ -57,6 +65,7 @@ pub fn add_score(score: Decimal, db: &AppDb) -> Result<i64> {
     Ok(score_id)
 }
 
+///Add tags associated with score id
 pub fn add_tags(tags: Vec<String>, score_id: i64, db: &AppDb) -> Result<()> {
     for tag in tags {
         db.conn.execute(

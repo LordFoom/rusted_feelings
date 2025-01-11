@@ -67,33 +67,7 @@ fn main() -> Result<()> {
     let path = get_db_path(&args)?;
     let db = init_db(path)?;
     let score = args.score;
-    db::add_score(score, &db);
-    //match args.command {
-    //    args::Commands::AddMood { mood, description } => {
-    //        if db::create_mood_if_not_exists(&mood, &description, &db)? {
-    //            info!("Added mood: '{}'", &mood.bold().green());
-    //        } else {
-    //            info!("Mood already exists: '{}'", &mood.bold().red());
-    //        };
-    //    }
-    //    args::Commands::ScoreMood {
-    //        score,
-    //        mood,
-    //        days_back,
-    //    } => match db::add_mood_score(score, &mood, days_back, &db) {
-    //        Ok(_) => info!(
-    //            "Recorded score of {} for mood '{}'",
-    //            score.to_string().underline(),
-    //            mood.bold().green()
-    //        ),
-    //        Err(why) => error!(
-    //            "Failed to record mood: '{}', reason: '{}'",
-    //            mood,
-    //            why.bold().red()
-    //        ),
-    //    },
-    //    args::Commands::ListMoods => todo!(),
-    //    args::Commands::ShowScores => todo!(),
-    //}
+    db::add_score(score, &db)?;
+    info! {"Added score {} with tags {:?}", args.score.cyan(), args.tags.yellow()};
     Ok(())
 }
