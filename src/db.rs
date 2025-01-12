@@ -13,6 +13,7 @@ pub struct Score {
     pub id: usize,
     pub score: String,
     pub create_date: chrono::NaiveDateTime,
+    pub tags: Vec<String>,
 }
 
 impl AppDb {
@@ -75,6 +76,7 @@ pub fn add_tags(tags: &Vec<String>, score_id: i64, db: &AppDb) -> Result<()> {
     Ok(())
 }
 
+///get a list of scores and associated tags
 pub fn list_scores(
     db: &AppDb,
     start_date: Option<String>,
@@ -91,13 +93,24 @@ pub fn list_scores(
         parms.push(dt);
     };
 
+    let tag_sql = "SELECT name from tag where score_id = ? ";
     let mut stmt = db.conn.prepare(&sql)?;
+    let mut tag_stmt = db.conn.prepare(&tag_sql)?;
     let score_rows = stmt.query_map([], |row| {
-        let score = Score {
+        let mut score = Score {
             id: row.get(0)?,
             score: row.get(1)?,
             create_date: row.get(2)?,
+            tags: Vec::new(),
         };
+
+        let tags_iter = &tag_stmt.query_map([score.id], |tag_row| Ok(row.get(0)?.to_string()));
+        let mut tags = Vec::new();
+        for tag_row in tags_iter {
+            let tag = tag_row.unwrap();
+            tags.push(tag);
+        }
+        score.tags = tags;
         Ok(score)
     })?;
     let mut scores = Vec::new();
