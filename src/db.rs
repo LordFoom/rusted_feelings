@@ -47,21 +47,21 @@ pub fn init_db_tables(conn: &Connection) -> Result<()> {
     Ok(())
 }
 
-pub fn add_score_and_tags(args: &AppArgs, db: &AppDb) -> Result<()> {
-    let score_id = add_score(args.score, db)?;
+pub fn add_score_and_tags(args: &AppArgs, conn: &Connection) -> Result<()> {
+    let score_id = add_score(args.score, conn)?;
     if let tag_values = &args.tags {
-        add_tags(tag_values, score_id, db)?;
+        add_tags(tag_values, score_id, conn)?;
     };
     Ok(())
 }
 
 ///Insert a score and return the db id
-pub fn add_score(score: Decimal, db: &AppDb) -> Result<i64> {
-    db.conn.execute(
+pub fn add_score(score: Decimal, conn: &Connection) -> Result<i64> {
+    conn.execute(
         "INSERT INTO score(score) VALUES(?)",
         params![score.to_string()],
     )?;
-    let score_id = db.conn.last_insert_rowid();
+    let score_id = conn.last_insert_rowid();
     Ok(score_id)
 }
 
@@ -146,4 +146,13 @@ mod test {
             .unwrap();
         assert!(tag_exists);
     }
+
+    fn get_test_db() -> Connection {
+        let conn = Connection::open_in_memory().unwrap();
+        init_db_tables(&conn).unwrap();
+        conn
+    }
+
+    #[test]
+    pub fn test_add_score_and_tags() {}
 }
