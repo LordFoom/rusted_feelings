@@ -9,6 +9,7 @@ use rust_decimal::Decimal;
 )]
 pub struct AppArgs {
     pub score: Decimal,
+    #[arg(short, long)]
     pub tags: Vec<String>,
     #[arg(short, long)]
     pub verbose: bool,
