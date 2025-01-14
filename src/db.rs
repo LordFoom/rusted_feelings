@@ -66,9 +66,9 @@ pub fn add_score(score: Decimal, conn: &Connection) -> Result<i64> {
 }
 
 ///Add tags associated with score id
-pub fn add_tags(tags: &Vec<String>, score_id: i64, db: &AppDb) -> Result<()> {
+pub fn add_tags(tags: &Vec<String>, score_id: i64, conn: &Connection) -> Result<()> {
     for tag in tags {
-        db.conn.execute(
+        conn.execute(
             "INSERT INTO tag (name, score_id) VALUES (?,?) ",
             params![tag, score_id],
         )?;
@@ -78,7 +78,7 @@ pub fn add_tags(tags: &Vec<String>, score_id: i64, db: &AppDb) -> Result<()> {
 
 ///get a list of scores and associated tags
 pub fn list_scores(
-    db: &AppDb,
+    conn: &Connection,
     start_date: Option<String>,
     end_date: Option<String>,
 ) -> Result<Vec<Score>> {
@@ -94,8 +94,8 @@ pub fn list_scores(
     };
 
     let tag_sql = "SELECT name from tag where score_id = ? ";
-    let mut stmt = db.conn.prepare(&sql)?;
-    let mut tag_stmt = db.conn.prepare(&tag_sql)?;
+    let mut stmt = conn.prepare(&sql)?;
+    let mut tag_stmt = conn.prepare(&tag_sql)?;
     let score_rows = stmt.query_map([], |row| {
         let mut score = Score {
             id: row.get(0)?,
@@ -104,7 +104,7 @@ pub fn list_scores(
             tags: Vec::new(),
         };
 
-        let tags_iter = &tag_stmt.query_map([score.id], |tag_row| Ok(row.get(0)?.to_string()));
+        let tags_iter = tag_stmt.query_map([score.id], |tag_row| Ok(row.get(0)?.to_string()));
         let mut tags = Vec::new();
         for tag_row in tags_iter {
             let tag = tag_row.unwrap();
@@ -123,17 +123,13 @@ pub fn list_scores(
 
 #[cfg(test)]
 mod test {
-    use crate::db::AppDb;
     use rusqlite::Connection;
-    use rust_decimal_macros::dec;
 
     use super::init_db_tables;
 
     #[test]
     fn test_init_db() {
-        let conn = Connection::open_in_memory().unwrap();
-        init_db_tables(&conn).unwrap();
-        //somehow check that there iss a db
+        let conn = get_test_conn();
         let table_query = r#"SELECT EXISTS ( 
             SELECT 1 FROM sqlite_master where type='table' and name=?)"#;
 
@@ -147,12 +143,16 @@ mod test {
         assert!(tag_exists);
     }
 
-    fn get_test_db() -> Connection {
+    ///Get connection to in-memory db and ensure base tables exist
+    fn get_test_conn() -> Connection {
         let conn = Connection::open_in_memory().unwrap();
         init_db_tables(&conn).unwrap();
         conn
     }
 
     #[test]
-    pub fn test_add_score_and_tags() {}
+    pub fn test_add_score_and_tags() {
+        let conn = get_test_conn();
+        //db::Insert
+    }
 }
