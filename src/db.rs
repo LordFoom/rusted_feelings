@@ -47,22 +47,21 @@ pub fn init_db_tables(conn: &Connection) -> Result<()> {
     Ok(())
 }
 
-pub fn add_score_and_tags(args: &AppArgs, conn: &Connection) -> Result<()> {
-    let score_id = add_score(args.score, conn)?;
-    if let tag_values = &args.tags {
-        add_tags(tag_values, score_id, conn)?;
+pub fn add_score_and_tags(score: &Decimal, tags: &Vec<String>, conn: &Connection) -> Result<()> {
+    let score_id = add_score(score, conn)?;
+    if !tags.is_empty() {
+        add_tags(tags, score_id, conn)?;
     };
     Ok(())
 }
 
 ///Insert a score and return the db id
-pub fn add_score(score: Decimal, conn: &Connection) -> Result<i64> {
+pub fn add_score(score: &Decimal, conn: &Connection) -> Result<i64> {
     conn.execute(
         "INSERT INTO score(score) VALUES(?)",
         params![score.to_string()],
     )?;
-    let score_id = conn.last_insert_rowid();
-    Ok(score_id)
+    Ok(conn.last_insert_rowid())
 }
 
 ///Add tags associated with score id
@@ -125,7 +124,7 @@ pub fn list_scores(
 mod test {
     use rusqlite::Connection;
 
-    use super::init_db_tables;
+    use super::{add_score_and_tags, init_db_tables};
 
     #[test]
     fn test_init_db() {
@@ -154,5 +153,6 @@ mod test {
     pub fn test_add_score_and_tags() {
         let conn = get_test_conn();
         //db::Insert
+        add_score_and_tags(args, &conn)
     }
 }
