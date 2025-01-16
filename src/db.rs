@@ -11,7 +11,7 @@ pub struct AppDb {
 
 pub struct Score {
     pub id: usize,
-    pub score: String,
+    pub score: Decimal,
     pub create_date: chrono::NaiveDateTime,
     pub tags: Vec<String>,
 }
@@ -98,7 +98,7 @@ pub fn list_scores(
     let score_rows = stmt.query_map([], |row| {
         let mut score = Score {
             id: row.get(0)?,
-            score: row.get(1)?,
+            score: row.get::<String>(1)?.into(),
             create_date: row.get(2)?,
             tags: Vec::new(),
         };
@@ -123,8 +123,9 @@ pub fn list_scores(
 #[cfg(test)]
 mod test {
     use rusqlite::Connection;
+    use rust_decimal_macros::dec;
 
-    use super::{add_score_and_tags, init_db_tables};
+    use super::{add_score_and_tags, init_db_tables, list_scores};
 
     #[test]
     fn test_init_db() {
@@ -152,7 +153,23 @@ mod test {
     #[test]
     pub fn test_add_score_and_tags() {
         let conn = get_test_conn();
-        //db::Insert
-        add_score_and_tags(args, &conn)
+        let dec = dec!(7.9);
+        let tags = vec![
+            "test".to_string(),
+            "the".to_string(),
+            "tagger".to_string(),
+            "before".to_string(),
+            "the".to_string(),
+            "tagger".to_string(),
+            "tests".to_string(),
+            "you".to_string(),
+        ];
+        add_score_and_tags(&dec, &tags, &conn);
+
+        let scores = list_scores(&conn, None, None).unwrap();
+        assert!(scores.len() == 1);
+        let test_score = scores.get(0).unwrap();
+        let test_dec = test_score.score;
+        assert_eq!(dec, test_dec)
     }
 }

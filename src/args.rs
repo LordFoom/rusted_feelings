@@ -1,4 +1,5 @@
-use clap::{Parser, Subcommand};
+use chrono::NaiveDate;
+use clap::Parser;
 use rust_decimal::Decimal;
 ///Representation of the command line arguments
 #[derive(Parser, Debug)]
@@ -13,4 +14,10 @@ pub struct AppArgs {
     pub tags: Vec<String>,
     #[arg(short, long)]
     pub verbose: bool,
+    #[arg(short, long)]
+    pub list: bool,
+    #[arg(short, long)]
+    pub start: NaiveDate,
+    #[arg(short, long)]
+    pub end: NaiveDate,
 }
