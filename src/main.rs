@@ -55,7 +55,7 @@ fn init_logging(verbose: bool) -> Result<()> {
 /// a sqlite file. Takes the parsed
 /// args as an arg so it can check if a config file
 /// was passed in as an argument on the cli.
-fn get_db_path(args: &AppArgs) -> Result<&str> {
+fn get_db_path(_args: &AppArgs) -> Result<&str> {
     Ok(".rusted_feelings.db")
 }
 //TODO Git repo
@@ -66,7 +66,11 @@ fn main() -> Result<()> {
     init_logging(args.verbose)?;
     let path = get_db_path(&args)?;
     let db = init_db(path)?;
-    db::add_score_and_tags(&args.score, &args.tags, &db.conn)?;
-    info! {"Added score {} with tags {:?}", args.score.cyan(), args.tags.yellow()};
+    //if list is presnt
+    if args.list {}
+    if let Some(arg_score) = args.score {
+        db::add_score_and_tags(&arg_score, &args.tags, &db.conn)?;
+        info! {"Added score {} with tags {:?}", arg_score.cyan(), args.tags.yellow()};
+    }
     Ok(())
 }

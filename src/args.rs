@@ -9,7 +9,7 @@ use rust_decimal::Decimal;
     long_about = "Keep track of your moods with this cli app. Give it a score and maybe tag it with feelings"
 )]
 pub struct AppArgs {
-    pub score: Decimal,
+    pub score: Option<Decimal>,
     #[arg(short, long)]
     pub tags: Vec<String>,
     #[arg(short, long)]
