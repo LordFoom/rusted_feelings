@@ -67,7 +67,9 @@ fn main() -> Result<()> {
     let path = get_db_path(&args)?;
     let db = init_db(path)?;
     //if list is presnt
-    if args.list {}
+    if args.list {
+        let scores = db::list_scores(&db.conn, args.start, args.end)?;
+    }
     if let Some(arg_score) = args.score {
         db::add_score_and_tags(&arg_score, &args.tags, &db.conn)?;
         info! {"Added score {} with tags {:?}", arg_score.cyan(), args.tags.yellow()};
