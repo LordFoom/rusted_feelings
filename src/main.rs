@@ -9,6 +9,7 @@ use log4rs::{
     encode::pattern::PatternEncoder,
     Config,
 };
+use tabled::Table;
 
 use crate::{args::AppArgs, db::init_db};
 use color_eyre::Result;
@@ -69,6 +70,8 @@ fn main() -> Result<()> {
     //if list is presnt
     if args.list {
         let scores = db::list_scores(&db.conn, args.start, args.end)?;
+        let score_table = Table::new(scores);
+        println!("{}", score_table);
     }
     if let Some(arg_score) = args.score {
         db::add_score_and_tags(&arg_score, &args.tags, &db.conn)?;

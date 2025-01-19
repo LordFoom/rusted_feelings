@@ -17,7 +17,7 @@ pub struct AppArgs {
     #[arg(short, long)]
     pub list: bool,
     #[arg(short, long)]
-    pub start: NaiveDate,
+    pub start: Option<NaiveDate>,
     #[arg(short, long)]
-    pub end: NaiveDate,
+    pub end: Option<NaiveDate>,
 }

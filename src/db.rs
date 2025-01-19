@@ -1,14 +1,14 @@
+use chrono::{format::parse, NaiveDate};
 use color_eyre::Result;
 use rusqlite::{params, Connection};
 use rust_decimal::Decimal;
-
-use crate::args::AppArgs;
+use tabled::Tabled;
 
 pub struct AppDb {
     pub path: String,
     pub conn: Connection,
 }
-
+#[derive(Tabled)]
 pub struct Score {
     pub id: usize,
     pub score: Decimal,
@@ -78,8 +78,8 @@ pub fn add_tags(tags: &Vec<String>, score_id: i64, conn: &Connection) -> Result<
 ///get a list of scores and associated tags
 pub fn list_scores(
     conn: &Connection,
-    start_date: Option<String>,
-    end_date: Option<String>,
+    start_date: Option<NaiveDate>,
+    end_date: Option<NaiveDate>,
 ) -> Result<Vec<Score>> {
     let mut sql = "SELECT id, score, create_date FROM score WHERE 1=1 ".to_string();
     let mut parms = Vec::new();
@@ -98,14 +98,18 @@ pub fn list_scores(
     let score_rows = stmt.query_map([], |row| {
         let mut score = Score {
             id: row.get(0)?,
-            score: row.get::<String>(1)?.into(),
+            score: row.get::<_, String>(1)?.parse::<Decimal>().unwrap(),
             create_date: row.get(2)?,
             tags: Vec::new(),
         };
 
-        let tags_iter = tag_stmt.query_map([score.id], |tag_row| Ok(row.get(0)?.to_string()));
+        let tags_iter = tag_stmt.query_map([score.id], |tag_row| Ok(row.get::<_, String>(0)?))?;
         let mut tags = Vec::new();
-        for tag_row in tags_iter {
+        for tag_row in tags_iter.into_iter() {
+            //match tag_row {
+            //    Ok(tag) => tags.push(tag),
+            //    Err(why) => return Err(why),
+            //}
             let tag = tag_row.unwrap();
             tags.push(tag);
         }
