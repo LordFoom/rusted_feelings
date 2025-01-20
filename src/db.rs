@@ -1,14 +1,12 @@
-use chrono::{format::parse, NaiveDate};
+use chrono::NaiveDate;
 use color_eyre::Result;
 use rusqlite::{params, Connection};
 use rust_decimal::Decimal;
-use tabled::Tabled;
 
 pub struct AppDb {
     pub path: String,
     pub conn: Connection,
 }
-#[derive(Tabled)]
 pub struct Score {
     pub id: usize,
     pub score: Decimal,

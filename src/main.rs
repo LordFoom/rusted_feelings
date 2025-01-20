@@ -9,6 +9,7 @@ use log4rs::{
     encode::pattern::PatternEncoder,
     Config,
 };
+use tabled::builder::Builder;
 use tabled::Table;
 
 use crate::{args::AppArgs, db::init_db};
@@ -70,7 +71,10 @@ fn main() -> Result<()> {
     //if list is presnt
     if args.list {
         let scores = db::list_scores(&db.conn, args.start, args.end)?;
-        let score_table = Table::new(scores);
+        scores.into_iter()
+    .map(|score| (score.id))
+        let mut score_table = Builder::default().build();
+        score_table.score_table.set_titles("");
         println!("{}", score_table);
     }
     if let Some(arg_score) = args.score {
