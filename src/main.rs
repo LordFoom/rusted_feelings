@@ -71,10 +71,13 @@ fn main() -> Result<()> {
     //if list is presnt
     if args.list {
         let scores = db::list_scores(&db.conn, args.start, args.end)?;
+        //trying to turn the bottom into a manual row because i cannot derive because of a vec of
+        //strings
+        //being vexed by header
         scores.into_iter()
     .map(|score| (score.id))
         let mut score_table = Builder::default().build();
-        score_table.score_table.set_titles("");
+    
         println!("{}", score_table);
     }
     if let Some(arg_score) = args.score {
