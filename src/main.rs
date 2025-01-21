@@ -74,11 +74,12 @@ fn main() -> Result<()> {
         //trying to turn the bottom into a manual row because i cannot derive because of a vec of
         //strings
         //being vexed by header
-        scores.into_iter()
-    .map(|score| (score.id))
-        let mut score_table = Builder::default().build();
-    
-        println!("{}", score_table);
+        let table_rows = scores
+            .into_iter()
+            .map(|score| (score.create_date, score.score));
+
+        let mut table_builder = Builder::default();
+        table_builder.push_record(("Date", "Score"));
     }
     if let Some(arg_score) = args.score {
         db::add_score_and_tags(&arg_score, &args.tags, &db.conn)?;
