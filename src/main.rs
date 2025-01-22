@@ -60,9 +60,7 @@ fn init_logging(verbose: bool) -> Result<()> {
 fn get_db_path(_args: &AppArgs) -> Result<&str> {
     Ok(".rusted_feelings.db")
 }
-//TODO Git repo
-//Accept arguments
-//Create argument model;
+//TODO refactor some methods out, like a pro would
 fn main() -> Result<()> {
     let args = AppArgs::parse();
     init_logging(args.verbose)?;
@@ -79,8 +77,12 @@ fn main() -> Result<()> {
             .map(|score| (score.create_date, score.score));
 
         let mut table_builder = Builder::default();
-        table_builder.push_record(("Date", "Score"));
+        table_builder.push_record(["Date", "Score"]);
+        for (score_date, score) in table_rows {
+            table_builder.push_record([score_date.to_string(), score.to_string()]);
+        }
     }
+
     if let Some(arg_score) = args.score {
         db::add_score_and_tags(&arg_score, &args.tags, &db.conn)?;
         info! {"Added score {} with tags {:?}", arg_score.cyan(), args.tags.yellow()};
