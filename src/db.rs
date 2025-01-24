@@ -1,8 +1,9 @@
+use std::str::FromStr;
+
 use chrono::NaiveDate;
 use color_eyre::Result;
 use rusqlite::{params, Connection};
 use rust_decimal::Decimal;
-use rust_decimal_macros::dec;
 
 pub struct AppDb {
     pub path: String,
@@ -96,7 +97,7 @@ pub fn list_scores(
     let mut tag_stmt = conn.prepare(&tag_sql)?;
     let score_rows = stmt.query_map([], |row| {
         let score_str: String = row.get(1)?;
-        let score_dec = Decimal::from_str(&score_str);
+        let score_dec = Decimal::from_str(&score_str)?;
         let mut score = Score {
             id: row.get(0)?,
             score: score_dec,
