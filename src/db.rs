@@ -36,7 +36,7 @@ pub fn init_db(path: &str) -> Result<AppDb> {
 
 pub fn init_db_tables(conn: &Connection) -> Result<()> {
     let score_tbl_sql =
-        "CREATE TABLE IF NOT EXISTS score (id integer primary key asc, create_date default current_timestamp, score REAL)";
+        "CREATE TABLE IF NOT EXISTS score (id integer primary key asc, create_date default current_timestamp, score TEXT)";
     conn.execute(score_tbl_sql, [])?;
 
     let tag_tbl_sql =
@@ -95,9 +95,11 @@ pub fn list_scores(
     let mut stmt = conn.prepare(&sql)?;
     let mut tag_stmt = conn.prepare(&tag_sql)?;
     let score_rows = stmt.query_map([], |row| {
+        let score_str: String = row.get(1)?;
+        let score_dec = Decimal::from_str(&score_str);
         let mut score = Score {
             id: row.get(0)?,
-            score: dec!(row.get(1)?),
+            score: score_dec,
             create_date: row.get(2)?,
             tags: Vec::new(),
         };
