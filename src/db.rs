@@ -5,6 +5,8 @@ use color_eyre::Result;
 use rusqlite::{params, Connection};
 use rust_decimal::Decimal;
 
+use crate::error::AppError;
+
 pub struct AppDb {
     pub path: String,
     pub conn: Connection,
@@ -80,7 +82,7 @@ pub fn list_scores(
     conn: &Connection,
     start_date: Option<NaiveDate>,
     end_date: Option<NaiveDate>,
-) -> Result<Vec<Score>> {
+) -> Result<Vec<Score>, AppError> {
     let mut sql = "SELECT id, score, create_date FROM score WHERE 1=1 ".to_string();
     let mut parms = Vec::new();
     if let Some(dt) = start_date {

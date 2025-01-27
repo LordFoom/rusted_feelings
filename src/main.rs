@@ -17,6 +17,7 @@ use color_eyre::Result;
 
 mod args;
 mod db;
+mod error;
 
 fn init_logging(verbose: bool) -> Result<()> {
     color_eyre::install()?;
