@@ -75,13 +75,20 @@ fn main() -> Result<()> {
         //being vexed by header
         let table_rows = scores
             .into_iter()
-            .map(|score| (score.create_date, score.score));
+            .map(|score| (score.create_date, score.score, score.tags));
 
         let mut table_builder = Builder::default();
-        table_builder.push_record(["Date", "Score"]);
-        for (score_date, score) in table_rows {
-            table_builder.push_record([score_date.to_string(), score.to_string()]);
+        table_builder.push_record(["Date", "Score", "Tags"]);
+        for (score_date, score, score_tags) in table_rows {
+            table_builder.push_record([
+                score_date.to_string(),
+                score.to_string(),
+                score_tags.join(","),
+            ]);
         }
+
+        let mut table = table_builder.build();
+        println!("{table}");
     }
 
     if let Some(arg_score) = args.score {

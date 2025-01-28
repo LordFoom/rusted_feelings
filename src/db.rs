@@ -97,9 +97,12 @@ pub fn list_scores(
     let tag_sql = "SELECT name from tag where score_id = ? ";
     let mut stmt = conn.prepare(&sql)?;
     let mut tag_stmt = conn.prepare(&tag_sql)?;
-    let score_rows = stmt.query_map([], |row| {
+    //TODO add the dates
+    let mut scores = Vec::new();
+    let mut rows = stmt.query([])?;
+    while let Some(row) = rows.next()? {
         let score_str: String = row.get(1)?;
-        let score_dec = Decimal::from_str(&score_str)?;
+        let score_dec = Decimal::from_str(&score_str).map_err(AppError::from)?;
         let mut score = Score {
             id: row.get(0)?,
             score: score_dec,
@@ -107,24 +110,30 @@ pub fn list_scores(
             tags: Vec::new(),
         };
 
-        let tags_iter = tag_stmt.query_map([score.id], |tag_row| Ok(row.get::<_, String>(0)?))?;
         let mut tags = Vec::new();
-        for tag_row in tags_iter.into_iter() {
-            //match tag_row {
-            //    Ok(tag) => tags.push(tag),
-            //    Err(why) => return Err(why),
-            //}
-            let tag = tag_row.unwrap();
+        let mut tags_iter = tag_stmt.query([score.id])?;
+        while let Some(tag_row) = tags_iter.next()? {
+            //let score_rows = stmt.query_map([], |row| {
+            //    let score_str: String = row.get(1)?;
+            //    let score_dec = Decimal::from_str(&score_str)
+            //        .map_err(|e| rusqlite::Error::UserFunctionError(Box::new(e)))?;
+            //    let mut score = Score {
+            //        id: row.get(0)?,
+            //        score: score_dec,
+            //        create_date: row.get(2)?,
+            //        tags: Vec::new(),
+            //    };
+
+            let tag = tag_row.get(0)?;
             tags.push(tag);
         }
         score.tags = tags;
-        Ok(score)
-    })?;
-    let mut scores = Vec::new();
-    for score_wrap in score_rows {
-        let score = score_wrap.unwrap();
         scores.push(score);
     }
+    //for score_wrap in score_rows {
+    //    let score = score_wrap.unwrap();
+    //    scores.push(score);
+    //}
     Ok(scores)
 }
 
