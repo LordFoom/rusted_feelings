@@ -26,7 +26,7 @@ impl AppDb {
     pub fn from_conn(conn: Connection) -> Self {
         Self {
             path: "IN-MEMORY".to_string(),
-            conn: conn,
+            conn,
         }
     }
 }
@@ -96,7 +96,7 @@ pub fn list_scores(
 
     let tag_sql = "SELECT name from tag where score_id = ? ";
     let mut stmt = conn.prepare(&sql)?;
-    let mut tag_stmt = conn.prepare(&tag_sql)?;
+    let mut tag_stmt = conn.prepare(tag_sql)?;
     //TODO add the dates
     let mut scores = Vec::new();
     let mut rows = stmt.query([])?;
@@ -181,7 +181,7 @@ mod test {
             "tests".to_string(),
             "you".to_string(),
         ];
-        add_score_and_tags(&dec, &tags, &conn);
+        add_score_and_tags(&dec, &tags, &conn).unwrap();
 
         let scores = list_scores(&conn, None, None).unwrap();
         assert!(scores.len() == 1);

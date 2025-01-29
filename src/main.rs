@@ -1,8 +1,8 @@
 use clap::Parser;
 
 use color_eyre::owo_colors::OwoColorize;
+use log::info;
 use log::LevelFilter;
-use log::{error, info};
 use log4rs::{
     append::{console::ConsoleAppender, file::FileAppender},
     config::{Appender, Root},
@@ -10,7 +10,6 @@ use log4rs::{
     Config,
 };
 use tabled::builder::Builder;
-use tabled::Table;
 
 use crate::{args::AppArgs, db::init_db};
 use color_eyre::Result;
@@ -87,7 +86,7 @@ fn main() -> Result<()> {
             ]);
         }
 
-        let mut table = table_builder.build();
+        let table = table_builder.build();
         println!("{table}");
     }
 
