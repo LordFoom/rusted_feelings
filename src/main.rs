@@ -66,33 +66,34 @@ fn main() -> Result<()> {
     init_logging(args.verbose)?;
     let path = get_db_path(&args)?;
     let db = init_db(path)?;
-    //if list is presnt
-    if args.list {
-        let scores = db::list_scores(&db.conn, args.start, args.end)?;
-        //trying to turn the bottom into a manual row because i cannot derive because of a vec of
-        //strings
-        //being vexed by header
-        let table_rows = scores
-            .into_iter()
-            .map(|score| (score.create_date, score.score, score.tags));
-
-        let mut table_builder = Builder::default();
-        table_builder.push_record(["Date", "Score", "Tags"]);
-        for (score_date, score, score_tags) in table_rows {
-            table_builder.push_record([
-                score_date.to_string(),
-                score.to_string(),
-                score_tags.join(","),
-            ]);
-        }
-
-        let table = table_builder.build();
-        println!("{table}");
-    }
-
+    //put a score in first so if we list as well it shows up
     if let Some(arg_score) = args.score {
         db::add_score_and_tags(&arg_score, &args.tags, &db.conn)?;
-        info! {"Added score {} with tags {:?}", arg_score.cyan(), args.tags.yellow()};
+        println! {"Added score {} with tags {:?}", arg_score.cyan(), args.tags.yellow()};
     }
+    //if list is presnt
+    if args.list {
+        list_scores(&args, &db)?;
+    }
+
+    Ok(())
+}
+
+fn list_scores(args: &AppArgs, db: &db::AppDb) -> Result<(), color_eyre::eyre::Error> {
+    let scores = db::list_scores(&db.conn, args.start, args.end)?;
+    let table_rows = scores
+        .into_iter()
+        .map(|score| (score.create_date, score.score, score.tags));
+    let mut table_builder = Builder::default();
+    table_builder.push_record(["Date", "Score", "Tags"]);
+    for (score_date, score, score_tags) in table_rows {
+        table_builder.push_record([
+            score_date.to_string(),
+            score.to_string(),
+            score_tags.join(","),
+        ]);
+    }
+    let table = table_builder.build();
+    println!("{table}");
     Ok(())
 }
