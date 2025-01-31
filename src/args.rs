@@ -20,4 +20,6 @@ pub struct AppArgs {
     pub start: Option<NaiveDate>,
     #[arg(short, long)]
     pub end: Option<NaiveDate>,
+    #[arg(short, long)]
+    pub chart: bool,
 }
