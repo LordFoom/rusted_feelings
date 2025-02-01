@@ -10,16 +10,25 @@ use rust_decimal::Decimal;
 )]
 pub struct AppArgs {
     pub score: Option<Decimal>,
+    ///What tags you want associated
     #[arg(short, long)]
     pub tags: Vec<String>,
+    ///Spew debug info
     #[arg(short, long)]
     pub verbose: bool,
+    ///Show a table of scores
     #[arg(short, long)]
     pub list: bool,
+    ///Start date for listing/charting
     #[arg(short, long)]
     pub start: Option<NaiveDate>,
+    ///End date for listing/charting
     #[arg(short, long)]
     pub end: Option<NaiveDate>,
+    ///generate a chart
     #[arg(short, long)]
     pub chart: bool,
+    ///Tag filters for listing/charting by tag
+    #[arg(short, long)]
+    pub filter: Vec<String>,
 }

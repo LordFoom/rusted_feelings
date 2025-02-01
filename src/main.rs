@@ -57,6 +57,7 @@ fn init_logging(verbose: bool) -> Result<()> {
 /// a sqlite file. Takes the parsed
 /// args as an arg so it can check if a config file
 /// was passed in as an argument on the cli.
+/// TODO filters for listing/charting by tag
 fn get_db_path(_args: &AppArgs) -> Result<&str> {
     Ok(".rusted_feelings.db")
 }
