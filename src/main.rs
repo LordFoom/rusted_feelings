@@ -77,7 +77,15 @@ fn main() -> Result<()> {
         list_scores(&args, &db)?;
     }
 
+    if args.chart {
+        draw_chart(&args, &db)?;
+    }
+
     Ok(())
+}
+
+fn draw_chart(args: &AppArgs, db: &db::AppDb) -> _ {
+    todo!()
 }
 
 fn list_scores(args: &AppArgs, db: &db::AppDb) -> Result<(), color_eyre::eyre::Error> {
