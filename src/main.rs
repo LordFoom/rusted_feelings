@@ -15,6 +15,7 @@ use crate::{args::AppArgs, db::init_db};
 use color_eyre::Result;
 
 mod args;
+mod chart;
 mod db;
 mod error;
 
