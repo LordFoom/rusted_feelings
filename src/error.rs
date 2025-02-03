@@ -8,4 +8,6 @@ pub enum AppError {
     Rusqlite(#[from] RusqliteError),
     #[error("Decimal error: {0}")]
     Decimal(#[from] DecimalError),
+    #[error("Anyhow error: {0}")]
+    Anyhow(#[from] anyhow::Error),
 }

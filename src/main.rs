@@ -86,15 +86,15 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn draw_chart(args: &AppArgs, db: &db::AppDb) -> Result<()> {
+fn draw_chart(args: &AppArgs, db: &db::AppDb) -> Result<(), AppError> {
     //chart::d
     let mut scores = db::list_scores(&db.conn, args.start, args.end)?;
     let chart = construct_chart(&mut scores)?;
-    chart::draw_chart("./chart.png", &chart)?;
+    chart::draw_chart("./chart.svg", &chart)?;
     Ok(())
 }
 
-fn list_scores(args: &AppArgs, db: &db::AppDb) -> Result<(), color_eyre::eyre::Error> {
+fn list_scores(args: &AppArgs, db: &db::AppDb) -> Result<()> {
     let scores = db::list_scores(&db.conn, args.start, args.end)?;
     let table_rows = scores
         .into_iter()
