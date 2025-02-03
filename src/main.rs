@@ -1,7 +1,8 @@
+use chart::construct_chart;
 use clap::Parser;
 
 use color_eyre::owo_colors::OwoColorize;
-use log::info;
+use error::AppError;
 use log::LevelFilter;
 use log4rs::{
     append::{console::ConsoleAppender, file::FileAppender},
@@ -85,8 +86,12 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn draw_chart(args: &AppArgs, db: &db::AppDb) -> _ {
-    todo!()
+fn draw_chart(args: &AppArgs, db: &db::AppDb) -> Result<()> {
+    //chart::d
+    let mut scores = db::list_scores(&db.conn, args.start, args.end)?;
+    let chart = construct_chart(&mut scores)?;
+    chart::draw_chart("./chart.png", &chart)?;
+    Ok(())
 }
 
 fn list_scores(args: &AppArgs, db: &db::AppDb) -> Result<(), color_eyre::eyre::Error> {

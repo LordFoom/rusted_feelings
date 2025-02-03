@@ -1,4 +1,4 @@
-use charming::{component::Title, Chart};
+use charming::{component::Title, Chart, ImageRenderer};
 use chrono::{NaiveDate, NaiveDateTime, Utc};
 use indexmap::IndexMap;
 use rust_decimal::Decimal;
@@ -33,4 +33,11 @@ pub fn construct_chart(scores: &mut Vec<Score>) -> Result<Chart> {
     let chart = Chart::new().title(Title::new().top("Score Chart"));
 
     Ok(chart)
+}
+
+///Draw a chart to
+pub fn draw_chart(file: &str, chart: &Chart) -> Result<()> {
+    let mut renderer = ImageRenderer::new(640, 480);
+    renderer.save(chart, file)?;
+    Ok(())
 }
