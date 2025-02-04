@@ -1,6 +1,7 @@
 use charming::{component::Title, series::Line, Chart, ImageRenderer};
 use chrono::{NaiveDate, NaiveDateTime, Utc};
 use indexmap::IndexMap;
+use log::debug;
 use rust_decimal::Decimal;
 
 use crate::db::Score;
@@ -14,6 +15,7 @@ pub fn construct_chart(scores: &mut Vec<Score>) -> Result<Chart> {
     scores.sort_by_key(|s| s.create_date);
     let mut curr_date = Utc::now().date_naive();
     let mut graph_buckets: IndexMap<NaiveDate, Vec<Decimal>> = IndexMap::new();
+    debug!("Charting {} scores", scores.len());
     for score in scores {
         let key_date = if score.create_date.date() != curr_date {
             curr_date = score.create_date.date().clone();
@@ -21,6 +23,8 @@ pub fn construct_chart(scores: &mut Vec<Score>) -> Result<Chart> {
         } else {
             curr_date
         };
+
+        debug!("Current date, our column: {}", key_date);
         if let Some(graph_score) = graph_buckets.get_mut(&key_date) {
             graph_score.push(score.score);
         } else {
@@ -38,6 +42,7 @@ pub fn construct_chart(scores: &mut Vec<Score>) -> Result<Chart> {
             (key.to_string(), avg.to_string())
         })
         .collect::<Vec<(String, String)>>();
+    debug!("This is the final GraphData: {:?}", graph_data);
 
     let chart = Chart::new()
         .title(Title::new().top("Score Chart"))

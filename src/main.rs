@@ -90,7 +90,7 @@ fn draw_chart(args: &AppArgs, db: &db::AppDb) -> Result<(), AppError> {
     //chart::d
     let mut scores = db::list_scores(&db.conn, args.start, args.end)?;
     let chart = construct_chart(&mut scores)?;
-    chart::draw_chart("./chart.svg", &chart)?;
+    chart::draw_chart("./chart.png", &chart)?;
     Ok(())
 }
 
