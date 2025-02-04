@@ -1,7 +1,8 @@
 use charming::{component::Title, series::Line, Chart, ImageRenderer};
-use chrono::{NaiveDate, NaiveDateTime, Utc};
+use chrono::{NaiveDate, Utc};
 use indexmap::IndexMap;
 use log::debug;
+use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
 
 use crate::db::Score;
@@ -38,10 +39,10 @@ pub fn construct_chart(scores: &mut Vec<Score>) -> Result<Chart> {
         .map(|(key, val)| {
             let length = Decimal::new(val.len() as i64, 2);
             let total: Decimal = val.into_iter().fold(Decimal::from(0), |acc, d| acc + d);
-            let avg = total / length;
-            (key.to_string(), avg.to_string())
+            let avg = (total / length).round_dp(2);
+            (avg.to_f32().unwrap(), key.to_string())
         })
-        .collect::<Vec<(String, String)>>();
+        .collect::<Vec<(f32, String)>>();
     debug!("This is the final GraphData: {:?}", graph_data);
 
     let chart = Chart::new()
