@@ -1,4 +1,4 @@
-use charming::{component::Title, Chart, ImageRenderer};
+use charming::{component::Title, series::Line, Chart, ImageRenderer};
 use chrono::{NaiveDate, NaiveDateTime, Utc};
 use indexmap::IndexMap;
 use rust_decimal::Decimal;
@@ -29,8 +29,19 @@ pub fn construct_chart(scores: &mut Vec<Score>) -> Result<Chart> {
             graph_buckets.insert(key_date, score_vec);
         }
     }
+    let graph_data = graph_buckets
+        .into_iter()
+        .map(|(key, val)| {
+            let length = Decimal::new(val.len() as i64, 2);
+            let total: Decimal = val.into_iter().fold(Decimal::from(0), |acc, d| acc + d);
+            let avg = total / length;
+            (key.to_string(), avg.to_string())
+        })
+        .collect::<Vec<(String, String)>>();
 
-    let chart = Chart::new().title(Title::new().top("Score Chart"));
+    let chart = Chart::new()
+        .title(Title::new().top("Score Chart"))
+        .series(Line::new().name("Mood trend").data(graph_data));
 
     Ok(chart)
 }
