@@ -1,3 +1,5 @@
+use charming::component::Axis;
+use charming::element::AxisType;
 use charming::{component::Title, series::Line, Chart, ImageRenderer};
 use chrono::{NaiveDate, Utc};
 use indexmap::IndexMap;
@@ -34,19 +36,26 @@ pub fn construct_chart(scores: &mut Vec<Score>) -> Result<Chart> {
             graph_buckets.insert(key_date, score_vec);
         }
     }
-    let graph_data = graph_buckets
-        .into_iter()
-        .map(|(key, val)| {
-            let length = Decimal::new(val.len() as i64, 2);
-            let total: Decimal = val.into_iter().fold(Decimal::from(0), |acc, d| acc + d);
-            let avg = (total / length).round_dp(2);
-            (avg.to_f32().unwrap(), key.to_string())
-        })
-        .collect::<Vec<(f32, String)>>();
-    debug!("This is the final GraphData: {:?}", graph_data);
+    //let graph_data = graph_buckets
+    //    .into_iter()
+    //    .map(|(key, val)| {
+    //        let length = Decimal::new(val.len() as i64, 2);
+    //        let total: Decimal = val.into_iter().fold(Decimal::from(0), |acc, d| acc + d);
+    //        let avg = (total / length).round_dp(2);
+    //        (avg.to_f32().unwrap(), key.to_string())
+    //    })
+    //    .collect::<Vec<(f32, String)>>();
+    //debug!("This is the final GraphData: {:?}", graph_data);
+    let x_axis= graph_buckets
+        .keys()
+        .map(|key| key.to_string())
+        .collect::<Vec<String>>();
+    //let y_values = 
 
     let chart = Chart::new()
         .title(Title::new().top("Score Chart"))
+        .x_axis(Axis::new().type(AxisType::Time)
+            .data(vec![graph_buckets.keys()]))
         .series(Line::new().name("Mood trend").data(graph_data));
 
     Ok(chart)
