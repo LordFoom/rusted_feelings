@@ -1,10 +1,10 @@
-use rust_decimal::prelude::ToPrimitive;
 use charming::component::Axis;
 use charming::element::AxisType;
 use charming::{component::Title, series::Line, Chart, ImageRenderer};
 use chrono::{NaiveDate, Utc};
 use indexmap::IndexMap;
 use log::debug;
+use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
 
 use crate::db::Score;
@@ -46,25 +46,27 @@ pub fn construct_chart(scores: &mut Vec<Score>) -> Result<Chart> {
     //    })
     //    .collect::<Vec<(f32, String)>>();
     //debug!("This is the final GraphData: {:?}", graph_data);
-    let x_axis= graph_buckets
+    let x_axis = graph_buckets
         .keys()
         .map(|key| key.to_string())
         .collect::<Vec<String>>();
-    let y_axis = graph_buckets.values().map(|value_vec| {
-        let sum_decimal:Decimal = value_vec.into_iter().sum();
-        //shoul  just have started with floats, oh well
-        let sum_f32 =  sum_decimal.to_f32().or(Some(0.0)).unwrap();
-        let len_32 = value_vec.len() as f32;
-        let avg:f32 = sum_f32/len_32;
-    });
+    let line_data = graph_buckets
+        .values()
+        .map(|value_vec| {
+            let sum_decimal: Decimal = value_vec.into_iter().sum();
+            //shoul  just have started with floats, oh well
+            let sum_f32 = sum_decimal.to_f32().or(Some(0.0)).unwrap();
+            let len_32 = value_vec.len() as f32;
+            let avg: f32 = sum_f32 / len_32;
+            avg
+        })
+        .collect::<Vec<f32>>();
 
     let chart = Chart::new()
         .title(Title::new().top("Score Chart"))
-        .x_axis(
-            Axis::new().type_(AxisType::Time).data(x_axis),
-            )
-        .y_axis( Axis::new().type(AxisType::VALUE))
-        .series(Line::new().name("Mood trend").data(graph_data));
+        .x_axis(Axis::new().type_(AxisType::Time).data(x_axis))
+        .y_axis(Axis::new().type_(AxisType::Value))
+        .series(Line::new().name("Mood trend").data(line_data));
 
     Ok(chart)
 }
