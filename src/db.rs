@@ -78,21 +78,26 @@ pub fn add_tags(tags: &Vec<String>, score_id: i64, conn: &Connection) -> Result<
 }
 
 ///get a list of scores and associated tags
+///Optionally filtered by tags,start- and end_date
 pub fn list_scores(
     conn: &Connection,
+    tags: Vec<String>,
     start_date: Option<NaiveDate>,
     end_date: Option<NaiveDate>,
 ) -> Result<Vec<Score>, AppError> {
     let mut sql = "SELECT id, score, create_date FROM score WHERE 1=1 ".to_string();
     let mut parms = Vec::new();
     if let Some(dt) = start_date {
-        sql.push_str("AND create_date >= ?");
+        sql.push_str(" AND create_date >= ?");
         parms.push(dt);
     };
     if let Some(dt) = end_date {
-        sql.push_str("AND create_date < ?");
+        sql.push_str(" AND create_date < ?");
         parms.push(dt);
     };
+    if !tags.is_empty() {
+        let tags_string = " AND id in (select score_id from tags ".to_string();
+    }
 
     let tag_sql = "SELECT name from tag where score_id = ? ";
     let mut stmt = conn.prepare(&sql)?;
