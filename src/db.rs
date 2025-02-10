@@ -81,7 +81,7 @@ pub fn add_tags(tags: &Vec<String>, score_id: i64, conn: &Connection) -> Result<
 ///Optionally filtered by tags,start- and end_date
 pub fn list_scores(
     conn: &Connection,
-    tags: Vec<String>,
+    tags: &Vec<String>,
     start_date: Option<NaiveDate>,
     end_date: Option<NaiveDate>,
 ) -> Result<Vec<Score>, AppError> {
@@ -188,7 +188,8 @@ mod test {
         ];
         add_score_and_tags(&dec, &tags, &conn).unwrap();
 
-        let scores = list_scores(&conn, None, None).unwrap();
+        let tag_filters = Vec::new();
+        let scores = list_scores(&conn, &tag_filters, None, None).unwrap();
         assert!(scores.len() == 1);
         let test_score = scores.get(0).unwrap();
         let test_dec = test_score.score;
