@@ -2,7 +2,8 @@ use std::str::FromStr;
 
 use chrono::NaiveDate;
 use color_eyre::Result;
-use rusqlite::{params, Connection};
+use log::debug;
+use rusqlite::{params, params_from_iter, Connection};
 use rust_decimal::Decimal;
 
 use crate::error::AppError;
@@ -81,7 +82,7 @@ pub fn add_tags(tags: &Vec<String>, score_id: i64, conn: &Connection) -> Result<
 ///Optionally filtered by tags,start- and end_date
 pub fn list_scores(
     conn: &Connection,
-    tags: &Vec<String>,
+    filter_tags: &Vec<String>,
     start_date: Option<NaiveDate>,
     end_date: Option<NaiveDate>,
 ) -> Result<Vec<Score>, AppError> {
@@ -95,16 +96,28 @@ pub fn list_scores(
         sql.push_str(" AND create_date < ?");
         parms.push(dt);
     };
-    if !tags.is_empty() {
-        let tags_string = " AND id in (select score_id from tags ".to_string();
+    if !filter_tags.is_empty() {
+        let mut tags_string =
+            " AND id in (select score_id from tags where tags.name in (?".to_string();
+
+        for _ in 1..filter_tags.len() {
+            tags_string.push_str(",?");
+        }
+        //remove the final character
+        tags_string.push_str("))");
+        sql.push_str(&tags_string);
     }
 
+    debug!("sql: {}", sql);
+    debug!("tags {:?}", filter_tags);
     let tag_sql = "SELECT name from tag where score_id = ? ";
     let mut stmt = conn.prepare(&sql)?;
     let mut tag_stmt = conn.prepare(tag_sql)?;
     //TODO add the dates
     let mut scores = Vec::new();
-    let mut rows = stmt.query([])?;
+    let params = params_from_iter(filter_tags);
+
+    let mut rows = stmt.query(params)?;
     while let Some(row) = rows.next()? {
         let score_str: String = row.get(1)?;
         let score_dec = Decimal::from_str(&score_str).map_err(AppError::from)?;
@@ -118,17 +131,6 @@ pub fn list_scores(
         let mut tags = Vec::new();
         let mut tags_iter = tag_stmt.query([score.id])?;
         while let Some(tag_row) = tags_iter.next()? {
-            //let score_rows = stmt.query_map([], |row| {
-            //    let score_str: String = row.get(1)?;
-            //    let score_dec = Decimal::from_str(&score_str)
-            //        .map_err(|e| rusqlite::Error::UserFunctionError(Box::new(e)))?;
-            //    let mut score = Score {
-            //        id: row.get(0)?,
-            //        score: score_dec,
-            //        create_date: row.get(2)?,
-            //        tags: Vec::new(),
-            //    };
-
             let tag = tag_row.get(0)?;
             tags.push(tag);
         }

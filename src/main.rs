@@ -95,7 +95,7 @@ fn draw_chart(args: &AppArgs, db: &db::AppDb) -> Result<(), AppError> {
 }
 
 fn list_scores(args: &AppArgs, db: &db::AppDb) -> Result<()> {
-    let scores = db::list_scores(&db.conn, &args.tags, args.start, args.end)?;
+    let scores = db::list_scores(&db.conn, &args.filter, args.start, args.end)?;
     let table_rows = scores
         .into_iter()
         .map(|score| (score.create_date, score.score, score.tags));
