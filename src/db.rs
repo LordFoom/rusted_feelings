@@ -98,7 +98,7 @@ pub fn list_scores(
     };
     if !filter_tags.is_empty() {
         let mut tags_string =
-            " AND id in (select score_id from tags where tags.name in (?".to_string();
+            " AND id in (select score_id from tag where tag.name in (?".to_string();
 
         for _ in 1..filter_tags.len() {
             tags_string.push_str(",?");
