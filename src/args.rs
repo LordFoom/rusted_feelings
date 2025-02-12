@@ -31,4 +31,6 @@ pub struct AppArgs {
     ///Tag filters for listing/charting by tag
     #[arg(short, long)]
     pub filter: Vec<String>,
+    #[arg(short, long)]
+    pub no_filter: bool,
 }
