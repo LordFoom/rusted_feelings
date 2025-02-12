@@ -1,5 +1,6 @@
 use std::str::FromStr;
 
+use anyhow::anyhow;
 use chrono::NaiveDate;
 use color_eyre::Result;
 use log::debug;
@@ -83,9 +84,14 @@ pub fn add_tags(tags: &Vec<String>, score_id: i64, conn: &Connection) -> Result<
 pub fn list_scores(
     conn: &Connection,
     filter_tags: &Vec<String>,
+    no_tags: bool,
     start_date: Option<NaiveDate>,
     end_date: Option<NaiveDate>,
 ) -> Result<Vec<Score>, AppError> {
+    if !filter_tags.is_empty() && no_tags {
+        let err = anyhow!("May not have filter_tags and no_tags at the same time");
+        return Err(AppError::Anyhow(err));
+    }
     let mut sql = "SELECT id, score, create_date FROM score WHERE 1=1 ".to_string();
     let mut parms = Vec::new();
     if let Some(dt) = start_date {
