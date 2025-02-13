@@ -197,7 +197,7 @@ mod test {
         add_score_and_tags(&dec, &tags, &conn).unwrap();
 
         let tag_filters = Vec::new();
-        let scores = list_scores(&conn, &tag_filters, None, None).unwrap();
+        let scores = list_scores(&conn, &tag_filters, false, None, None).unwrap();
         assert!(scores.len() == 1);
         let test_score = scores.get(0).unwrap();
         let test_dec = test_score.score;

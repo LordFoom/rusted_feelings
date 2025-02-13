@@ -88,14 +88,26 @@ fn main() -> Result<()> {
 
 fn draw_chart(args: &AppArgs, db: &db::AppDb) -> Result<(), AppError> {
     //chart::d
-    let mut scores = db::list_scores(&db.conn, &args.tags, args.start, args.end)?;
+    let mut scores = db::list_scores(
+        &db.conn,
+        &args.filters,
+        args.no_filter,
+        args.start,
+        args.end,
+    )?;
     let chart = construct_chart(&mut scores)?;
     chart::draw_chart("./chart.png", &chart)?;
     Ok(())
 }
 
 fn list_scores(args: &AppArgs, db: &db::AppDb) -> Result<()> {
-    let scores = db::list_scores(&db.conn, &args.filter, args.start, args.end)?;
+    let scores = db::list_scores(
+        &db.conn,
+        &args.filters,
+        args.no_filter,
+        args.start,
+        args.end,
+    )?;
     let table_rows = scores
         .into_iter()
         .map(|score| (score.create_date, score.score, score.tags));

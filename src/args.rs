@@ -1,5 +1,5 @@
 use chrono::NaiveDate;
-use clap::Parser;
+use clap::{parser, Args, Parser};
 use rust_decimal::Decimal;
 ///Representation of the command line arguments
 #[derive(Parser, Debug)]
@@ -28,9 +28,18 @@ pub struct AppArgs {
     ///generate a chart
     #[arg(short, long)]
     pub chart: bool,
-    ///Tag filters for listing/charting by tag
+    ///Filter tags, or no_filter
+    #[command(flatten)]
+    pub filtered: Filtered,
+}
+
+#[derive(Debug, Args)]
+#[group(required = false, multiple = false)]
+struct Filtered {
+    ///Tag filters for listing/charting scores by tag
     #[arg(short, long)]
-    pub filter: Vec<String>,
+    pub filters: Vec<String>,
+    ///Only list scores without tags
     #[arg(short, long)]
     pub no_filter: bool,
 }
