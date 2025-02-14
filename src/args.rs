@@ -30,12 +30,12 @@ pub struct AppArgs {
     pub chart: bool,
     ///Filter tags, or no_filter
     #[command(flatten)]
-    pub filtered: Filtered,
+    pub filter: Filter,
 }
 
 #[derive(Debug, Args)]
 #[group(required = false, multiple = false)]
-struct Filtered {
+pub struct Filter {
     ///Tag filters for listing/charting scores by tag
     #[arg(short, long)]
     pub filters: Vec<String>,

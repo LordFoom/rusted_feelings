@@ -72,7 +72,7 @@ fn main() -> Result<()> {
     //put a score in first so if we list as well it shows up
     if let Some(arg_score) = args.score {
         db::add_score_and_tags(&arg_score, &args.tags, &db.conn)?;
-        println! {"Added score {} with tags {:?}", arg_score.cyan(), args.tags.yellow()};
+        println! {"Added score {} with tags {:?}", arg_score.cyan().bold(), args.tags.yellow()};
     }
     //if list is presnt
     if args.list {
@@ -86,12 +86,13 @@ fn main() -> Result<()> {
     Ok(())
 }
 
+///Alpha. Very alpha.
 fn draw_chart(args: &AppArgs, db: &db::AppDb) -> Result<(), AppError> {
     //chart::d
     let mut scores = db::list_scores(
         &db.conn,
-        &args.filters,
-        args.no_filter,
+        &args.filter.filters,
+        args.filter.no_filter,
         args.start,
         args.end,
     )?;
@@ -103,8 +104,8 @@ fn draw_chart(args: &AppArgs, db: &db::AppDb) -> Result<(), AppError> {
 fn list_scores(args: &AppArgs, db: &db::AppDb) -> Result<()> {
     let scores = db::list_scores(
         &db.conn,
-        &args.filters,
-        args.no_filter,
+        &args.filter.filters,
+        args.filter.no_filter,
         args.start,
         args.end,
     )?;
