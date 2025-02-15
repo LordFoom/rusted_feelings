@@ -114,6 +114,10 @@ pub fn list_scores(
         sql.push_str(&tags_string);
     }
 
+    if no_tags {
+        sql.push_str(" AND NOT EXISTS (select 1 from tag where tag.score_id = score.id) ");
+    }
+
     debug!("sql: {}", sql);
     debug!("tags {:?}", filter_tags);
     let tag_sql = "SELECT name from tag where score_id = ? ";
@@ -202,5 +206,10 @@ mod test {
         let test_score = scores.get(0).unwrap();
         let test_dec = test_score.score;
         assert_eq!(dec, test_dec)
+    }
+
+    #[test]
+    pub fn test_list_scores_no_tags() {
+        let conn = get_test_copn();
     }
 }
