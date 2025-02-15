@@ -1,5 +1,5 @@
 use chrono::NaiveDate;
-use clap::{parser, Args, Parser};
+use clap::{Args, Parser};
 use rust_decimal::Decimal;
 ///Representation of the command line arguments
 #[derive(Parser, Debug)]
