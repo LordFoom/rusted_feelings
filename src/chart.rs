@@ -21,7 +21,7 @@ pub fn construct_chart(scores: &mut Vec<Score>) -> Result<Chart> {
     debug!("Charting {} scores", scores.len());
     for score in scores {
         let key_date = if score.create_date.date() != curr_date {
-            curr_date = score.create_date.date().clone();
+            curr_date = score.create_date.date();
             score.create_date.date()
         } else {
             curr_date
@@ -31,9 +31,7 @@ pub fn construct_chart(scores: &mut Vec<Score>) -> Result<Chart> {
         if let Some(graph_score) = graph_buckets.get_mut(&key_date) {
             graph_score.push(score.score);
         } else {
-            let mut score_vec = Vec::new();
-            score_vec.push(score.score);
-            graph_buckets.insert(key_date, score_vec);
+            graph_buckets.insert(key_date, vec![score.score]);
         }
     }
     //let graph_data = graph_buckets
@@ -53,9 +51,9 @@ pub fn construct_chart(scores: &mut Vec<Score>) -> Result<Chart> {
     let line_data = graph_buckets
         .values()
         .map(|value_vec| {
-            let sum_decimal: Decimal = value_vec.into_iter().sum();
+            let sum_decimal: Decimal = value_vec.iter().sum();
             //shoul  just have started with floats, oh well
-            let sum_f32 = sum_decimal.to_f32().or(Some(0.0)).unwrap();
+            let sum_f32 = sum_decimal.to_f32().unwrap_or(0.0);
             let len_32 = value_vec.len() as f32;
             let avg: f32 = sum_f32 / len_32;
             avg
