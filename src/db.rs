@@ -187,7 +187,7 @@ mod test {
     #[test]
     pub fn test_add_score_and_tags() {
         let conn = get_test_conn();
-        let dec = dec!(7.9);
+        let dec = dec![7.9];
         let tags = vec![
             "test".to_string(),
             "the".to_string(),
@@ -210,6 +210,9 @@ mod test {
 
     #[test]
     pub fn test_list_scores_no_tags() {
-        let conn = get_test_copn();
+        let conn = get_test_conn();
+        let dec = dec![8.2];
+        let tags = Vec::new();
+        add_score_and_tags(&dec, tags, &conn)
     }
 }
