@@ -212,7 +212,35 @@ mod test {
     pub fn test_list_scores_no_tags() {
         let conn = get_test_conn();
         let dec = dec![8.2];
-        let tags = Vec::new();
-        add_score_and_tags(&dec, tags, &conn)
+        let mut tags = Vec::new();
+        let mut filters = Vec::new();
+        add_score_and_tags(&dec, &tags, &conn).unwrap();
+
+        let dec2 = dec![7.6];
+        tags.push("testing".to_string());
+        add_score_and_tags(&dec2, &tags, &conn).unwrap();
+
+        let dec3 = dec![4];
+        tags.clear();
+        tags.push("another_testing".to_string());
+        add_score_and_tags(&dec3, &tags, &conn).unwrap();
+
+        let scores = list_scores(&conn, &filters, true, None, None).unwrap();
+        assert_eq!(1, scores.len());
+        let score_no_tag = scores.first().unwrap();
+        assert_eq!(dec, score_no_tag.score);
+
+        let scores = list_scores(&conn, &filters, false, None, None).unwrap();
+        assert_eq!(3, scores.len());
+
+        filters.push("testing".to_string());
+        let scores = list_scores(&conn, &filters, false, None, None).unwrap();
+        assert_eq!(1, scores.len());
+        let score_first_tag = scores.first().unwrap();
+        assert_eq!(dec2, score_first_tag.score);
+
+        filters.push("another_testing".to_string());
+        let scores = list_scores(&conn, &filters, false, None, None).unwrap();
+        assert_eq!(2, scores.len());
     }
 }
